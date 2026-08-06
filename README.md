@@ -23,7 +23,7 @@ npm run dev                # http://localhost:5173
 
 Other scripts: `npm run build`, `npm run preview`, `npm run lint`.
 
-See [`../دليل-تشغيل-المشروع-للعميل.md`](../دليل-تشغيل-المشروع-للعميل.md) for a full, no-assumed-knowledge
+See [`docs/دليل-تشغيل-المشروع-للعميل.md`](docs/دليل-تشغيل-المشروع-للعميل.md) for a full, no-assumed-knowledge
 walkthrough (Arabic) covering the backend too.
 
 ## Folder structure
