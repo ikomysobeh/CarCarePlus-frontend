@@ -52,7 +52,9 @@
     "login": "Login",
     "email": "Email",
     "password": "Password",
-    "register": "Create account"
+    "register": "Create account",
+    "tagline": "Wash • Mechanic • Complete care",
+    "welcomeBack": "Sign in to your CarCarePlus dashboard"
   },
   "common": {
     "save": "Save",
