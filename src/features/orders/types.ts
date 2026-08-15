@@ -91,3 +91,112 @@ export interface AssignOrderInput {
 export interface CancelOrderInput {
   cancel_reason?: string;
 }
+
+// --- M16: booking detail sub-resources (see docs/12 §M16) ---
+
+interface EmployeeRef {
+  id: number;
+  user?: { id: number; name: string };
+}
+
+// GET /bookings/{id}/status-history
+export interface OrderStatusHistory {
+  id: number;
+  order_id: number;
+  employee_id: number | null;
+  employee?: EmployeeRef;
+  from_status: string | null;
+  to_status: string;
+  note: string | null;
+  created_at: string | null;
+}
+
+// GET /bookings/{id}/price-items → { price_items, total_items_price }
+export interface PriceItemsResult {
+  price_items: OrderPriceItem[];
+  total_items_price: string;
+}
+
+// GET /bookings/{id}/sub-services
+export interface OrderSubServiceRow {
+  id: number;
+  sub_service_id: number;
+  sub_service?: { id: number; name: string; name_ar: string };
+  price: string;
+  covered_by_package: boolean;
+  status: string;
+  notes: string | null;
+  checked_at: string | null;
+}
+export interface SubServicesResult {
+  sub_services: OrderSubServiceRow[];
+  total_sub_service_price: string;
+}
+
+// GET /bookings/{id}/materials
+export interface OrderMaterialRow {
+  id: number;
+  material_id: number;
+  material?: { id: number; name: string; name_ar: string };
+  requested_by: number | null;
+  quantity: number;
+  unit_price: string;
+  total_price: string;
+  status: string;
+  approved_at: string | null;
+}
+export interface MaterialsResult {
+  materials: OrderMaterialRow[];
+  total_materials_price: string;
+}
+
+// GET/POST /bookings/{id}/maintenance-detail (null until set)
+export interface MaintenanceDetail {
+  id: number;
+  order_id: number;
+  workshop_id: number | null;
+  notes: string | null;
+  created_at: string | null;
+}
+export interface MaintenanceDetailInput {
+  workshop_id?: number;
+  notes?: string;
+}
+
+// GET/POST /bookings/{id}/road-detail
+export interface RoadDetail {
+  id: number;
+  order_id: number;
+  problem_type_id: number | null;
+  car_type_size: string | null;
+  problem_description: string | null;
+  problem_image_url: string | null;
+  ai_diagnosis: string | null;
+  created_at: string | null;
+}
+export interface RoadDetailInput {
+  problem_type_id?: number;
+  car_type_size?: string;
+  problem_description?: string;
+  problem_image_url?: string;
+  ai_diagnosis?: string;
+}
+
+// GET/POST /bookings/{id}/towing-detail
+export interface TowingDetail {
+  id: number;
+  order_id: number;
+  car_type_size: string | null;
+  destination_lat: number | null;
+  destination_lng: number | null;
+  destination_address: string | null;
+  notes: string | null;
+  created_at: string | null;
+}
+export interface TowingDetailInput {
+  car_type_size?: string;
+  destination_lat?: number;
+  destination_lng?: number;
+  destination_address?: string;
+  notes?: string;
+}

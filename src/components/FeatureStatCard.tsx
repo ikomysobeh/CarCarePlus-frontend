@@ -1,4 +1,4 @@
-import { Box, Flex, Skeleton, Text } from '@chakra-ui/react';
+import { Box, Flex, Text } from '@chakra-ui/react';
 import type { ReactNode } from 'react';
 
 // --- tiny colour helpers so one `tint` hex drives the whole card ---
@@ -53,17 +53,25 @@ export default function FeatureStatCard({
       <Flex
         position="relative"
         zIndex={1}
-        direction="column"
+        direction="row"
+        align="center"
         justify="space-between"
-        aspectRatio={1}
+        gap={4}
+        minH="120px"
         rounded="card"
-        p={5}
+        p={6}
         overflow="hidden"
         color="white"
-        boxShadow="0 10px 30px -14px rgba(0,0,0,0.7)"
-        transition="transform .2s"
-        _hover={{ transform: 'translateY(-2px)' }}
+        boxShadow={`0 14px 34px -12px ${rgba(tint, 0.5)}`}
+        transition="transform .2s, box-shadow .2s"
+        _hover={{
+          transform: 'translateY(-3px)',
+          boxShadow: `0 20px 44px -12px ${rgba(tint, 0.62)}`,
+          // Flip the icon front-to-back (3D, around the vertical axis) on card hover.
+          '& .ccp-stat-icon': { transform: 'rotateY(360deg)' },
+        }}
         style={{
+          perspective: '600px',
           background: `linear-gradient(145deg, ${shade(tint, 0.14)} 0%, ${tint} 42%, ${shade(
             tint,
             -0.42,
@@ -82,37 +90,42 @@ export default function FeatureStatCard({
           }}
         />
 
-        {/* Frosted icon badge, top-left. */}
+        {/* Value + label on the start side (left in LTR / right in RTL). */}
+        <Box position="relative">
+          {loading ? (
+            <Box height="44px" width="90px" rounded="md" bg="whiteAlpha.300" />
+          ) : (
+            <Text fontSize="5xl" fontWeight="800" lineHeight="1">
+              {value}
+            </Text>
+          )}
+          <Text fontSize="sm" color="whiteAlpha.800" mt={2}>
+            {label}
+          </Text>
+        </Box>
+
+        {/* Big frosted 3D icon badge on the far side — fills the card horizontally. */}
         <Flex
+          className="ccp-stat-icon"
           position="relative"
-          w="42px"
-          h="42px"
+          w="72px"
+          h="72px"
           rounded="badge"
           align="center"
           justify="center"
-          fontSize="xl"
+          fontSize="4xl"
+          flexShrink={0}
+          transition="transform 0.6s ease"
           style={{
-            background: rgba('#ffffff', 0.2),
-            border: `1px solid ${rgba('#ffffff', 0.3)}`,
+            background: rgba('#ffffff', 0.18),
+            border: `1px solid ${rgba('#ffffff', 0.32)}`,
             backdropFilter: 'blur(6px)',
+            boxShadow: `0 12px 26px -8px ${rgba('#000000', 0.6)}`,
+            filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))',
           }}
         >
           {icon}
         </Flex>
-
-        {/* Value + label clustered together at the bottom. */}
-        <Box position="relative">
-          {loading ? (
-            <Skeleton height="32px" width="70px" />
-          ) : (
-            <Text fontSize="3xl" fontWeight="800" lineHeight="1">
-              {value}
-            </Text>
-          )}
-          <Text fontSize="sm" color="whiteAlpha.800" mt={1.5}>
-            {label}
-          </Text>
-        </Box>
       </Flex>
     </Box>
   );

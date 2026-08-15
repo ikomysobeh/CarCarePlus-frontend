@@ -22,6 +22,12 @@ export type ModuleKey =
   | 'workshops' // M12: workshop CRUD
   | 'inventory' // M13: materials, units, stock, transactions
   | 'settings' // M14: problem types, suggested problems, system settings, AI rules
+  | 'purchaseRequests' // M17: branch procurement workflow
+  | 'spareParts' // M18: spare part requests
+  | 'payments' // M19: payments + confirm cash
+  | 'ratings' // M20: customer ratings (read-only in dashboard)
+  | 'wallets' // M21: wallets + transactions + adjust
+  | 'fieldOps' // M22: employee reports + GPS logs (read-only)
   | 'profile'
   // coming soon (no backend endpoints yet)
   | 'orders'
@@ -47,6 +53,12 @@ export const BUILT_MODULES: ModuleKey[] = [
   'inventory',
   'settings',
   'orders', // M15: bookings — see docs/11 §2
+  'purchaseRequests', // M17
+  'spareParts', // M18
+  'payments', // M19
+  'ratings', // M20
+  'wallets', // M21
+  'fieldOps', // M22
   'profile',
 ];
 
@@ -54,7 +66,8 @@ export const MODULES_BY_ROLE: Record<Role, ModuleKey[]> = {
   super_admin: [
     'dashboard', 'orders', 'tracking', 'users', 'branches', 'workshops', 'cars', 'catalog',
     'packages', 'subscriptions',
-    'inventory', 'contracts', 'finance', 'reports', 'approvals', 'staff', 'admins', 'pricing',
+    'inventory', 'purchaseRequests', 'spareParts', 'payments', 'wallets', 'ratings', 'fieldOps',
+    'contracts', 'finance', 'reports', 'approvals', 'staff', 'admins', 'pricing',
     'settings', 'profile',
   ],
   admin: [
@@ -62,7 +75,8 @@ export const MODULES_BY_ROLE: Record<Role, ModuleKey[]> = {
     // (some write) on the 4 settings-group resources, per docs/10.
     'dashboard', 'orders', 'tracking', 'users', 'branches', 'workshops', 'cars', 'catalog',
     'packages', 'subscriptions',
-    'inventory', 'contracts', 'finance', 'reports', 'settings', 'profile',
+    'inventory', 'purchaseRequests', 'spareParts', 'payments', 'wallets', 'ratings', 'fieldOps',
+    'contracts', 'finance', 'reports', 'settings', 'profile',
   ],
   workshop: ['dashboard', 'orders', 'profile'],
   customer_personal: ['dashboard', 'cars', 'profile'],
@@ -116,6 +130,20 @@ export const canEditOrderStatus = (role: Role) =>
   role === 'employee_washer' ||
   role === 'employee_mechanic';
 export const canCancelOrders = (role: Role) => role === 'super_admin' || role === 'admin';
+
+// M17: Purchase Requests (see docs/12 §M17). Both SA + admin see the list. An ADMIN raises
+// requests (create/edit/delete, pending only); the SUPER_ADMIN approves/rejects/transfers.
+export const canCreatePurchaseRequest = (role: Role) => role === 'admin';
+export const canApprovePurchaseRequest = (role: Role) => role === 'super_admin';
+
+// M19: staff confirm a cash payment was collected.
+export const canConfirmCashPayment = (role: Role) => role === 'super_admin' || role === 'admin';
+
+// M21: adjust a customer's wallet balance (staff only).
+export const canAdjustWallet = (role: Role) => role === 'super_admin' || role === 'admin';
+
+// M18/M20/M22: spare parts, ratings, field ops are READ-ONLY in this admin dashboard — the
+// create/approve flows are customer/employee-facing (their own app). No write helpers here.
 
 export const can = (role: Role, module: ModuleKey) =>
   MODULES_BY_ROLE[role]?.includes(module) ?? false;

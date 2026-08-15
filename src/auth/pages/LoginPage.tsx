@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { Alert, Box, Button, Field, Flex, Heading, Input, Stack } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../AuthContext';
+import { Logo } from '../../components';
 import { ApiError } from '../../api/types';
 
 const schema = z.object({
@@ -36,7 +37,15 @@ export default function LoginPage() {
   };
 
   return (
-    <Flex minH="100vh" align="center" justify="center" bg="appBg" p={4}>
+    <Flex
+      minH="100vh"
+      align="center"
+      justify="center"
+      bg="appBg"
+      backgroundImage="var(--brand-bg-grad)"
+      backgroundAttachment="fixed"
+      p={4}
+    >
       <Box
         w="380px"
         maxW="100%"
@@ -45,9 +54,12 @@ export default function LoginPage() {
         borderColor="line"
         rounded="card"
         p={8}
-        shadow="lg"
+        shadow="2xl"
       >
-        <Heading size="lg" color="fg" mb={6}>
+        <Box mb={6} display="flex" justifyContent="center">
+          <Logo height={120} />
+        </Box>
+        <Heading size="md" color="fg" mb={6} textAlign="center">
           {t('auth.login')}
         </Heading>
         <form onSubmit={handleSubmit(onSubmit)}>

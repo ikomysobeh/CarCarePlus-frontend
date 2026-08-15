@@ -20,6 +20,12 @@ import {
   MdOutlineAdminPanelSettings,
   MdOutlinePriceChange,
   MdOutlineCarRepair,
+  MdOutlineShoppingCart,
+  MdOutlineBuild,
+  MdOutlineReceipt,
+  MdOutlineStar,
+  MdOutlineAccountBalanceWallet,
+  MdOutlineAssignment,
 } from 'react-icons/md';
 import type { ModuleKey } from '../utils/permissions';
 
@@ -46,6 +52,12 @@ export const NAV_ITEMS: NavItem[] = [
   { key: 'packages', route: '/packages', icon: <MdOutlineCardMembership />, group: 'main' },
   { key: 'subscriptions', route: '/subscriptions', icon: <MdOutlineLoyalty />, group: 'main' },
   { key: 'inventory', route: '/inventory', icon: <MdOutlineInventory2 />, group: 'main' },
+  { key: 'purchaseRequests', route: '/purchase-requests', icon: <MdOutlineShoppingCart />, group: 'main' },
+  { key: 'spareParts', route: '/spare-parts', icon: <MdOutlineBuild />, group: 'main' },
+  { key: 'payments', route: '/payments', icon: <MdOutlineReceipt />, group: 'main' },
+  { key: 'wallets', route: '/wallets', icon: <MdOutlineAccountBalanceWallet />, group: 'main' },
+  { key: 'ratings', route: '/ratings', icon: <MdOutlineStar />, group: 'main' },
+  { key: 'fieldOps', route: '/field-ops', icon: <MdOutlineAssignment />, group: 'main' },
   { key: 'contracts', route: '/contracts', icon: <MdOutlineDescription />, group: 'main' },
   { key: 'finance', route: '/finance', icon: <MdOutlinePayments />, group: 'main' },
   { key: 'reports', route: '/reports', icon: <MdOutlineBarChart />, group: 'main' },

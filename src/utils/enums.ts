@@ -79,3 +79,27 @@ export type AiRuleType = (typeof AI_RULE_TYPES)[number];
 // model cast (App\Enums\CarEnums\CarTypeSize) — don't merge these two concepts.
 export const CAR_TYPE_SIZES = ['sedan', 'suv', 'hatchback', 'pickup'] as const;
 export type CarTypeSizeEnum = (typeof CAR_TYPE_SIZES)[number];
+
+// --- M17/M18: procurement & spare parts (see docs/12) ---
+export const PURCHASE_REQUEST_STATUSES = ['pending', 'approved', 'rejected'] as const;
+export type PurchaseRequestStatus = (typeof PURCHASE_REQUEST_STATUSES)[number];
+
+export const SPARE_PART_REQUEST_STATUSES = [
+  'pending',
+  'approved',
+  'rejected',
+  'ordered',
+  'received',
+] as const;
+export type SparePartRequestStatus = (typeof SPARE_PART_REQUEST_STATUSES)[number];
+
+// --- M21: wallet transactions (see docs/12 §M21) ---
+export const WALLET_TX_TYPES = ['credit', 'debit'] as const;
+export type WalletTxType = (typeof WALLET_TX_TYPES)[number];
+
+export const WALLET_TX_REASONS = ['order_payment', 'refund', 'topup', 'adjustment'] as const;
+export type WalletTxReason = (typeof WALLET_TX_REASONS)[number];
+
+// --- M22: employee reports (see docs/12 §M22) ---
+export const EMPLOYEE_REPORT_STATUSES = ['pending', 'reviewed', 'approved', 'rejected'] as const;
+export type EmployeeReportStatus = (typeof EMPLOYEE_REPORT_STATUSES)[number];

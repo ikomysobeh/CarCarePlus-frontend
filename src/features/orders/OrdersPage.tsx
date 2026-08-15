@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Box, Button, HStack } from '@chakra-ui/react';
-import { MdPersonAdd, MdPlayArrow, MdCheck, MdClose } from 'react-icons/md';
+import { Box, Button, HStack, IconButton } from '@chakra-ui/react';
+import { MdPersonAdd, MdPlayArrow, MdCheck, MdClose, MdVisibility } from 'react-icons/md';
 import { useTranslation } from 'react-i18next';
 import { PageHeader, DataTable, StatusChip, ConfirmDialog, type Column } from '../../components';
 import { useAuth } from '../../auth/AuthContext';
@@ -8,6 +8,7 @@ import { canAssignOrders, canEditOrderStatus, canCancelOrders } from '../../util
 import { useOrders, useStartOrder, useCompleteOrder, useCancelOrder } from './api';
 import AssignOrderDialog from './AssignOrderDialog';
 import CancelOrderDialog from './CancelOrderDialog';
+import OrderDetailsDialog from './OrderDetailsDialog';
 import type { Order } from './types';
 
 // Orders/Bookings (see docs/11 §2). The customer-facing quote→confirm flow that CREATES a
@@ -32,6 +33,7 @@ export default function OrdersPage() {
   const [starting, setStarting] = useState<Order | null>(null);
   const [completing, setCompleting] = useState<Order | null>(null);
   const [cancelling, setCancelling] = useState<Order | null>(null);
+  const [viewing, setViewing] = useState<Order | null>(null);
 
   const columns: Column<Order>[] = [
     { key: 'id', header: t('orders.id') },
@@ -52,14 +54,18 @@ export default function OrdersPage() {
     },
   ];
 
-  if (canAssign || canEditStatus || canCancel) {
-    columns.push({
-      key: 'actions',
-      header: '',
-      align: 'right',
-      render: (o) => (
-        <HStack justify="flex-end" gap={1}>
-          {canAssign && o.status === 'pending' && (
+  columns.push({
+    key: 'actions',
+    header: '',
+    align: 'right',
+    render: (o) => (
+      <HStack justify="flex-end" gap={1}>
+        <IconButton aria-label={t('orderDetail.view')} size="sm" variant="ghost" onClick={() => setViewing(o)}>
+          <MdVisibility />
+        </IconButton>
+        {(canAssign || canEditStatus || canCancel) && (
+          <>
+            {canAssign && o.status === 'pending' && (
             <Button size="xs" variant="outline" onClick={() => setAssigning(o)}>
               <MdPersonAdd /> {t('orders.assign')}
             </Button>
@@ -75,14 +81,15 @@ export default function OrdersPage() {
             </Button>
           )}
           {canCancel && o.status !== 'completed' && o.status !== 'cancelled' && (
-            <Button size="xs" variant="outline" colorPalette="red" onClick={() => setCancelling(o)}>
-              <MdClose /> {t('common.cancel')}
-            </Button>
-          )}
-        </HStack>
-      ),
-    });
-  }
+              <Button size="xs" variant="outline" colorPalette="red" onClick={() => setCancelling(o)}>
+                <MdClose /> {t('common.cancel')}
+              </Button>
+            )}
+          </>
+        )}
+      </HStack>
+    ),
+  });
 
   return (
     <Box>
@@ -96,6 +103,8 @@ export default function OrdersPage() {
         onRetry={refetch}
         emptyMessage={t('orders.empty')}
       />
+
+      <OrderDetailsDialog order={viewing} onClose={() => setViewing(null)} />
 
       <AssignOrderDialog open={!!assigning} order={assigning} onClose={() => setAssigning(null)} />
 

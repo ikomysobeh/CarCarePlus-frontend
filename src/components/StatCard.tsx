@@ -1,4 +1,4 @@
-import { Badge, Box, Flex, Skeleton, Text } from '@chakra-ui/react';
+import { Badge, Box, Flex, Text } from '@chakra-ui/react';
 import type { ReactNode } from 'react';
 
 // A KPI tile (Chakra): big value + label on one side, a gradient icon badge on the other.
@@ -35,7 +35,7 @@ export default function StatCard({
     >
       <Box minW={0}>
         {loading ? (
-          <Skeleton height="30px" width="64px" />
+          <Box height="30px" width="64px" rounded="md" bg="whiteAlpha.200" />
         ) : (
           <Text fontSize="3xl" fontWeight="800" lineHeight="1">
             {value}
@@ -62,6 +62,9 @@ export default function StatCard({
         bgGradient="to-br"
         gradientFrom={`${accent}.400`}
         gradientTo={`${accent}.600`}
+        borderWidth="1px"
+        borderColor="whiteAlpha.300"
+        boxShadow="0 8px 20px -10px rgba(0,0,0,0.6)"
       >
         {icon}
       </Flex>

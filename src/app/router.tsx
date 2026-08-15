@@ -18,6 +18,12 @@ import WorkshopsPage from '../features/workshops/WorkshopsPage';
 import InventoryPage from '../features/inventory/InventoryPage';
 import SettingsPage from '../features/settings/SettingsPage';
 import OrdersPage from '../features/orders/OrdersPage';
+import PurchaseRequestsPage from '../features/purchase-requests/PurchaseRequestsPage';
+import SparePartsPage from '../features/spare-parts/SparePartsPage';
+import PaymentsPage from '../features/payments/PaymentsPage';
+import RatingsPage from '../features/ratings/RatingsPage';
+import WalletsPage from '../features/wallets/WalletsPage';
+import FieldOpsPage from '../features/field-ops/FieldOpsPage';
 import ComingSoonRoute from '../features/shell/ComingSoonRoute';
 
 // Built pages render their real components; modules whose backend endpoints don't exist
@@ -49,6 +55,13 @@ export const router = createBrowserRouter([
       { path: 'inventory', element: <InventoryPage /> },
       { path: 'settings', element: <SettingsPage /> },
       { path: 'orders', element: <OrdersPage /> },
+      // M17–M22 (see docs/12): SA + admin operations screens.
+      { path: 'purchase-requests', element: <PurchaseRequestsPage /> },
+      { path: 'spare-parts', element: <SparePartsPage /> },
+      { path: 'payments', element: <PaymentsPage /> },
+      { path: 'ratings', element: <RatingsPage /> },
+      { path: 'wallets', element: <WalletsPage /> },
+      { path: 'field-ops', element: <FieldOpsPage /> },
       // Coming soon (no backend endpoints yet) — each shows a styled ComingSoon page.
       { path: 'tracking', element: <ComingSoonRoute module="tracking" /> },
       { path: 'contracts', element: <ComingSoonRoute module="contracts" /> },

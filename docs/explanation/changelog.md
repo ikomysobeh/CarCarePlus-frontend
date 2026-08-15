@@ -4,6 +4,45 @@ A running log so you can see exactly what changed in each step and why. Newest a
 
 ---
 
+## 🧩 M16–M22 — Booking detail, Procurement, Spare parts, Payments, Ratings, Wallets, Field ops (2026-08-15)
+
+Wired the 2026-08-15 backend pull, documented in
+`car project/docs/12-bookings-detail-procurement-2026-08-15.md`. Seven feature areas landed at
+once. The dashboard is admin/super-admin facing, so we built the **operations + read + staff-decision**
+side of each; the customer/employee *create* flows (booking quote→confirm, rating create, spare-part
+create/approve) stay in their own app and are read-only here.
+
+**Shared wiring first (to avoid conflicts):** added all new paths to `api/endpoints.ts`, new enums
+to `utils/enums.ts` (purchase/spare-part/wallet/employee-report statuses + payment method/type),
+6 new `ModuleKey`s + permission helpers to `utils/permissions.ts`, 6 sidebar items to
+`layouts/navConfig.tsx`, 6 routes to `app/router.tsx`, new colors to `StatusChip`, and every
+`en`/`ar` i18n key.
+
+- **M16 Booking detail** (`features/orders/OrderDetailsDialog.tsx` + `OrderServiceDetails.tsx`) — a
+  "View" button on each order row opens a tabbed dialog: Overview, Price, Sub-services, Materials,
+  History (each its own lazy query), plus a Service-detail tab with maintenance/road/towing editors.
+  The middle tabs are hidden for the `workshop` role (blocked server-side). Added 7 read hooks +
+  3 update mutations to `features/orders/api.ts`.
+- **M17 Purchase Requests** (`features/purchase-requests/`) — new feature with a **repeatable
+  line-items editor** (`useFieldArray` — the first time we use it) + running total; admin creates/
+  edits/deletes pending requests, super_admin approves/rejects/transfers stock between branches.
+- **M18 Spare Parts** (`features/spare-parts/`) — read-only list (customers decide from their app).
+- **M19 Payments** (`features/payments/`) — list + a "confirm cash" action on pending cash payments.
+- **M20 Ratings** (`features/ratings/`) — read-only list with a small star display.
+- **M21 Wallets** (`features/wallets/`) — balances list + adjust-balance dialog (signed amount) +
+  a per-customer transaction-ledger dialog.
+- **M22 Field Ops** (`features/field-ops/`) — two read-only tabs: employee reports + GPS logs (the
+  data source for the future Live Tracking map).
+
+**Verified:** `tsc -b` clean, `npm run build` clean. Live behavior to be verified by the user
+(`npm run dev` + `php artisan serve`).
+
+**Known limitations (unchanged from the backend):** no employee-picker or workshop-picker lookup
+endpoint (assign + maintenance detail use plain numeric id fields); new list endpoints are
+paginated and use the `ALL_ROWS_PARAMS` stopgap.
+
+---
+
 ## 🧩 M15 — Orders/Bookings + pagination fix + two new fields (2026-08-06)
 
 Wired the second backend pull of the day, documented in

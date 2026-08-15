@@ -5,11 +5,12 @@ import { useTranslation } from 'react-i18next';
 // the label via `status.<value>` (falls back to the raw value).
 const COLOR_BY_STATUS: Record<string, string> = {
   approved: 'green', active: 'green', completed: 'green', paid: 'green', done: 'green', received: 'green',
-  pending: 'orange', requested: 'orange',
-  in_progress: 'blue', assigned: 'blue', redeem: 'blue',
+  credit: 'green',
+  pending: 'orange', requested: 'orange', refunded: 'orange',
+  in_progress: 'blue', assigned: 'blue', redeem: 'blue', ordered: 'blue', reviewed: 'blue', used: 'blue',
   earn: 'green',
-  draft: 'gray', inactive: 'gray', expired: 'gray',
-  rejected: 'red', cancelled: 'red', failed: 'red', suspended: 'red',
+  draft: 'gray', inactive: 'gray', expired: 'gray', skipped: 'gray',
+  rejected: 'red', cancelled: 'red', failed: 'red', suspended: 'red', debit: 'red',
 };
 
 export default function StatusChip({ status, label }: { status: string; label?: string }) {

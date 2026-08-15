@@ -134,6 +134,79 @@ export const endpoints = {
     assign: (id: number) => `/bookings/${id}/assign`,
     start: (id: number) => `/bookings/${id}/start`,
     complete: (id: number) => `/bookings/${id}/complete`,
+    // --- M16: booking detail tabs + service-type details (see docs/12 §M16) ---
+    statusHistory: (id: number) => `/bookings/${id}/status-history`,
+    priceItems: (id: number) => `/bookings/${id}/price-items`,
+    subServices: (id: number) => `/bookings/${id}/sub-services`,
+    materials: (id: number) => `/bookings/${id}/materials`,
+    maintenanceDetail: (id: number) => `/bookings/${id}/maintenance-detail`,
+    roadDetail: (id: number) => `/bookings/${id}/road-detail`,
+    towingDetail: (id: number) => `/bookings/${id}/towing-detail`,
+  },
+
+  // --- M17: Purchase Requests — branch procurement workflow (see docs/12 §M17) ---
+  purchaseRequests: {
+    index: '/purchase-requests',
+    show: (id: number) => `/purchase-requests/${id}`,
+    store: '/purchase-requests',
+    update: (id: number) => `/purchase-requests/${id}`,
+    destroy: (id: number) => `/purchase-requests/${id}`,
+    approve: (id: number) => `/purchase-requests/${id}/approve`,
+    reject: (id: number) => `/purchase-requests/${id}/reject`,
+    transfer: '/purchase-requests/transfer',
+  },
+  purchaseRequestItems: {
+    index: '/purchase-request-items',
+    show: (id: number) => `/purchase-request-items/${id}`,
+  },
+
+  // --- M18: Spare Part Requests (see docs/12 §M18) ---
+  sparePartRequests: {
+    index: '/spare-part-requests',
+    show: (id: number) => `/spare-part-requests/${id}`,
+    store: '/spare-part-requests',
+    approve: (id: number) => `/spare-part-requests/${id}/approve`,
+    reject: (id: number) => `/spare-part-requests/${id}/reject`,
+  },
+
+  // --- M19: Payments (see docs/12 §M19) ---
+  payments: {
+    index: '/payments',
+    show: (id: number) => `/payments/${id}`,
+    confirmCash: (id: number) => `/payments/${id}/confirm-cash`,
+  },
+
+  // --- M20: Ratings (see docs/12 §M20) ---
+  ratings: {
+    index: '/ratings',
+    show: (id: number) => `/ratings/${id}`,
+    store: '/ratings',
+    update: (id: number) => `/ratings/${id}`,
+  },
+
+  // --- M21: Wallets + wallet transactions (see docs/12 §M21) ---
+  wallets: {
+    index: '/wallets',
+    my: '/wallets/my',
+    show: (customerId: number) => `/wallets/${customerId}`,
+    adjust: (customerId: number) => `/wallets/${customerId}/adjust`,
+  },
+  walletTransactions: {
+    index: (customerId?: number) =>
+      customerId ? `/wallet-transactions/${customerId}` : '/wallet-transactions',
+    show: (id: number) => `/wallet-transactions/show/${id}`,
+  },
+
+  // --- M22: Field ops — employee reports + GPS logs (see docs/12 §M22) ---
+  employeeReports: {
+    index: '/employee-reports',
+    show: (id: number) => `/employee-reports/${id}`,
+    store: '/employee-reports',
+  },
+  gpsLogs: {
+    index: '/gps-logs',
+    show: (id: number) => `/gps-logs/${id}`,
+    store: '/gps-logs',
   },
 } as const;
 

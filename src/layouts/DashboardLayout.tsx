@@ -22,6 +22,7 @@ import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/AuthContext';
 import { useColorMode } from '../theme/colorMode';
+import { Logo } from '../components';
 import { MODULES_BY_ROLE, BUILT_MODULES } from '../utils/permissions';
 import { NAV_ITEMS, type NavGroup } from './navConfig';
 import i18n from '../i18n';
@@ -61,10 +62,12 @@ export default function DashboardLayout() {
         rounded="lg"
         cursor="pointer"
         opacity={dim ? 0.65 : 1}
-        bg={active ? 'brand.500' : 'transparent'}
-        color={active ? 'white' : 'fgMuted'}
+        bg={active ? 'rgba(37,99,235,0.14)' : 'transparent'}
+        color={active ? 'brand.300' : 'fgMuted'}
         fontWeight={active ? '700' : '500'}
-        _hover={active ? {} : { bg: 'surface', color: 'fg' }}
+        borderInlineStartWidth="3px"
+        borderColor={active ? 'brand.400' : 'transparent'}
+        _hover={active ? {} : { bg: 'whiteAlpha.100', color: 'fg' }}
         transition="all 0.15s"
       >
         <Box fontSize="lg" display="flex">{item.icon}</Box>
@@ -74,13 +77,13 @@ export default function DashboardLayout() {
   };
 
   return (
-    <Flex minH="100vh" bg="appBg" color="fg">
+    <Flex minH="100vh" bg="transparent" color="fg">
       {/* Sidebar */}
       <Box
         as="aside"
         w={SIDEBAR_W}
         flexShrink={0}
-        bg="surfaceAlt"
+        bg="transparent"
         borderInlineEndWidth="1px"
         borderColor="line"
         position="sticky"
@@ -93,16 +96,21 @@ export default function DashboardLayout() {
         flexDirection="column"
         css={{ scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}
       >
-        <Text fontSize="xl" fontWeight="800" letterSpacing="tight" px={2} mb={5}>
-          {t('app.name')}
-        </Text>
+        <Box px={2} mb={6}>
+          <Logo height={92} />
+        </Box>
 
         <Stack gap={4} flex="1">
           {GROUP_ORDER.map((group) => {
             const groupItems = realItems.filter((i) => i.group === group);
             if (!groupItems.length) return null;
             return (
-              <Box key={group}>
+              <Box
+                key={group}
+                borderTopWidth={group === 'system' ? '1px' : undefined}
+                borderColor="line"
+                pt={group === 'system' ? 4 : 0}
+              >
                 <Text fontSize="xs" fontWeight="700" color="fgMuted" textTransform="uppercase" px={3} mb={1.5}>
                   {t(`nav.group.${group}`)}
                 </Text>
@@ -174,7 +182,7 @@ export default function DashboardLayout() {
           borderColor="line"
           position="sticky"
           top={0}
-          bg="appBg"
+          bg="transparent"
           zIndex={1}
         >
           <InputGroup flex="1" maxW="420px" startElement={<MdSearch />}>
