@@ -29,33 +29,43 @@ export default function DashboardHome() {
 
   return (
     <Box>
-      <Text fontSize="2xl" fontWeight="800">
-        {t('dashboard.welcome', { name: user?.name ?? '' })} 👋
-      </Text>
-      <Text color="fgMuted" mb={6}>
-        {t('dashboard.subtitle')}
-      </Text>
+      {/* Blue gradient welcome banner — echoes the customer app's header. */}
+      <Box
+        mb={6}
+        p={{ base: 5, md: 6 }}
+        rounded="card"
+        color="white"
+        style={{ background: 'linear-gradient(120deg, #0052CC 0%, #0066FF 60%, #3385FF 100%)' }}
+        boxShadow="0 14px 34px -16px rgba(37,99,235,0.65)"
+      >
+        <Text fontSize="2xl" fontWeight="800">
+          {t('dashboard.welcome', { name: user?.name ?? '' })} 👋
+        </Text>
+        <Text color="whiteAlpha.900" mt={1}>
+          {t('dashboard.subtitle')}
+        </Text>
+      </Box>
 
-      {/* Headline metrics — gradient "hero" cards. Tints step along the logo's own transition,
-          carcare (blue) → plus (green), so they read as one cohesive brand set. */}
+      {/* Headline metrics — gradient "hero" cards. Blue-only ramp (deep navy → bright #0066FF)
+          to match the logo, which dropped the green. */}
       <SimpleGrid columns={{ base: 1, sm: 2, md: 3, xl: 5 }} gap={4} maxW="1200px">
         <FeatureStatCard label={t('nav.cars')} value={len(cars.data)} loading={cars.isLoading}
-          icon={<MdOutlineDirectionsCar />} tint="#1E40AF" />
+          icon={<MdOutlineDirectionsCar />} tint="#1E3A8A" />
         <FeatureStatCard label={t('catalog.categories')} value={len(categories.data)} loading={categories.isLoading}
-          icon={<MdOutlineCategory />} tint="#1D4ED8" />
+          icon={<MdOutlineCategory />} tint="#1E40AF" />
         <FeatureStatCard label={t('catalog.services')} value={len(services.data)} loading={services.isLoading}
-          icon={<MdOutlineBuild />} tint="#0E7490" />
+          icon={<MdOutlineBuild />} tint="#1D4ED8" />
         <FeatureStatCard label={t('catalog.subServices')} value={len(subServices.data)} loading={subServices.isLoading}
-          icon={<MdOutlineLayers />} tint="#0D9488" />
+          icon={<MdOutlineLayers />} tint="#2563EB" />
         <FeatureStatCard label={t('catalog.carTypes')} value={len(carTypes.data)} loading={carTypes.isLoading}
-          icon={<MdOutlineDirectionsCarFilled />} tint="#059669" />
+          icon={<MdOutlineDirectionsCarFilled />} tint="#0066FF" />
       </SimpleGrid>
 
       {/* Car brands as a matching gradient card, next to the KPI info panel. */}
       <Flex mt={4} gap={4} maxW="1200px" wrap="wrap" align="stretch">
         <Box w={{ base: 'full', md: '224px' }} flexShrink={0}>
           <FeatureStatCard label={t('catalog.carBrands')} value={len(carBrands.data)} loading={carBrands.isLoading}
-            icon={<MdOutlineSell />} tint="#0D9488" />
+            icon={<MdOutlineSell />} tint="#1D4ED8" />
         </Box>
         <Flex
           flex="1"
@@ -68,7 +78,7 @@ export default function DashboardHome() {
           align="center"
           style={{
             background:
-              'linear-gradient(145deg, rgba(37,99,235,0.16), rgba(13,148,136,0.10)), var(--ccp-colors-surface)',
+              'linear-gradient(145deg, rgba(0,102,255,0.14), rgba(37,99,235,0.08)), var(--ccp-colors-surface)',
           }}
         >
           <Icon as={MdInfoOutline} boxSize={5} color="accent.500" mt={0.5} />

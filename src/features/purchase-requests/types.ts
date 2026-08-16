@@ -42,6 +42,19 @@ export interface PurchaseRequestInput {
   items: { material_id: number; quantity: number; unit_price: number }[];
 }
 
+// M26: a payment record created when a purchase request is approved (read-only, super_admin).
+export interface PurchasePayment {
+  id: number;
+  purchase_request_id: number;
+  branch_id: number | null;
+  branch?: BranchRef;
+  paid_by: number | null;
+  payer?: { id: number; name: string };
+  amount: string;
+  note: string | null;
+  created_at: string | null;
+}
+
 // POST /purchase-requests/transfer — no unit_price on transfers.
 export interface TransferInput {
   from_branch_id: number;

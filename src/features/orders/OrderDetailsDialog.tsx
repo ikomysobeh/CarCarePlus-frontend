@@ -1,7 +1,10 @@
-import { CloseButton, Dialog, Portal, SimpleGrid, Stack, Table, Tabs, Text } from '@chakra-ui/react';
+import { useState } from 'react';
+import { Button, CloseButton, Dialog, Flex, Portal, SimpleGrid, Stack, Table, Tabs, Text } from '@chakra-ui/react';
+import { MdLocalOffer } from 'react-icons/md';
 import { useTranslation } from 'react-i18next';
 import { StatusChip, Loader, EmptyState, ErrorState } from '../../components';
 import { useAuth } from '../../auth/AuthContext';
+import { canDiscountOrders } from '../../utils/permissions';
 import {
   useOrderStatusHistory,
   useOrderPriceItems,
@@ -9,6 +12,7 @@ import {
   useOrderMaterials,
 } from './api';
 import OrderServiceDetails from './OrderServiceDetails';
+import DiscountOrderDialog from './DiscountOrderDialog';
 import type { Order } from './types';
 
 // One label/value cell used across the Overview grid.
@@ -180,15 +184,25 @@ export default function OrderDetailsDialog({ order, onClose }: { order: Order | 
   const { t } = useTranslation();
   const { user } = useAuth();
   const isWorkshop = user?.role === 'workshop';
+  const canDiscount = user ? canDiscountOrders(user.role) : false;
+  const [discountOpen, setDiscountOpen] = useState(false);
 
   return (
+    <>
     <Dialog.Root open={!!order} onOpenChange={(e) => { if (!e.open) onClose(); }} size="xl" placement="center" scrollBehavior="inside">
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
           <Dialog.Content bg="surface" color="fg" rounded="xl">
             <Dialog.Header>
-              <Dialog.Title>{t('orderDetail.title')} {order ? `#${order.id}` : ''}</Dialog.Title>
+              <Flex align="center" justify="space-between" gap={3} w="full" pe={8}>
+                <Dialog.Title>{t('orderDetail.title')} {order ? `#${order.id}` : ''}</Dialog.Title>
+                {canDiscount && order && order.status !== 'cancelled' && order.status !== 'completed' && (
+                  <Button size="xs" variant="outline" onClick={() => setDiscountOpen(true)}>
+                    <MdLocalOffer /> {t('orderDetail.discount')}
+                  </Button>
+                )}
+              </Flex>
             </Dialog.Header>
             <Dialog.Body>
               {order && (
@@ -217,5 +231,12 @@ export default function OrderDetailsDialog({ order, onClose }: { order: Order | 
         </Dialog.Positioner>
       </Portal>
     </Dialog.Root>
+
+    <DiscountOrderDialog
+      open={discountOpen}
+      orderId={order?.id ?? null}
+      onClose={() => setDiscountOpen(false)}
+    />
+    </>
   );
 }

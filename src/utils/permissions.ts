@@ -131,6 +131,19 @@ export const canEditOrderStatus = (role: Role) =>
   role === 'employee_mechanic';
 export const canCancelOrders = (role: Role) => role === 'super_admin' || role === 'admin';
 
+// M28: notifications. This list mirrors EXACTLY the roles the backend seeder grants
+// `show.notifications` / `edit.notification_status` to — customers are deliberately absent
+// there, so showing them a bell would just render a control that 403s on every click.
+export const canSeeNotifications = (role: Role) =>
+  role === 'super_admin' ||
+  role === 'admin' ||
+  role === 'workshop' ||
+  role === 'employee_washer' ||
+  role === 'employee_mechanic';
+
+// M25: apply a discount to a booking (super_admin only — `discount.order`).
+export const canDiscountOrders = (role: Role) => role === 'super_admin';
+
 // M17: Purchase Requests (see docs/12 §M17). Both SA + admin see the list. An ADMIN raises
 // requests (create/edit/delete, pending only); the SUPER_ADMIN approves/rejects/transfers.
 export const canCreatePurchaseRequest = (role: Role) => role === 'admin';

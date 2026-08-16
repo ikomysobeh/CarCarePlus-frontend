@@ -17,13 +17,16 @@ import {
   MdSearch,
   MdExpandMore,
   MdChevronRight,
+  MdOutlineNotifications,
 } from 'react-icons/md';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/AuthContext';
 import { useColorMode } from '../theme/colorMode';
 import { Logo } from '../components';
-import { MODULES_BY_ROLE, BUILT_MODULES } from '../utils/permissions';
+import { MODULES_BY_ROLE, BUILT_MODULES, canSeeNotifications } from '../utils/permissions';
+import { useUnreadCount } from '../features/notifications/api';
+import NotificationsDialog from '../features/notifications/NotificationsDialog';
 import { NAV_ITEMS, type NavGroup } from './navConfig';
 import i18n from '../i18n';
 
@@ -37,6 +40,13 @@ export default function DashboardLayout() {
   const location = useLocation();
 
   const [showSoon, setShowSoon] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+
+  // The bell is hidden for roles the backend never granted `show.notifications` to (customers),
+  // so we never render a control whose every request would 403.
+  const showBell = user ? canSeeNotifications(user.role) : false;
+  const unread = useUnreadCount(showBell);
+  const unreadCount = unread.data?.unread_count ?? 0;
 
   const allowed = user ? MODULES_BY_ROLE[user.role] : [];
   const items = NAV_ITEMS.filter((i) => allowed.includes(i.key));
@@ -62,12 +72,12 @@ export default function DashboardLayout() {
         rounded="lg"
         cursor="pointer"
         opacity={dim ? 0.65 : 1}
-        bg={active ? 'rgba(37,99,235,0.14)' : 'transparent'}
-        color={active ? 'brand.300' : 'fgMuted'}
+        bg={active ? 'navActiveBg' : 'transparent'}
+        color={active ? 'brand.fg' : 'fgMuted'}
         fontWeight={active ? '700' : '500'}
         borderInlineStartWidth="3px"
         borderColor={active ? 'brand.400' : 'transparent'}
-        _hover={active ? {} : { bg: 'whiteAlpha.100', color: 'fg' }}
+        _hover={active ? {} : { bg: 'navHoverBg', color: 'fg' }}
         transition="all 0.15s"
       >
         <Box fontSize="lg" display="flex">{item.icon}</Box>
@@ -77,7 +87,13 @@ export default function DashboardLayout() {
   };
 
   return (
-    <Flex minH="100vh" bg="transparent" color="fg">
+    <Flex
+      minH="100vh"
+      bg="appBg"
+      backgroundImage="var(--app-bg-grad)"
+      backgroundAttachment="fixed"
+      color="fg"
+    >
       {/* Sidebar */}
       <Box
         as="aside"
@@ -96,9 +112,17 @@ export default function DashboardLayout() {
         flexDirection="column"
         css={{ scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}
       >
-        <Box px={2} mb={6}>
-          <Logo height={92} />
-        </Box>
+        {/* Brand lockup: mark + wordmark. The old version was a 104px logo on a hand-written
+            radial glow — a huge bright blob that outweighed the navigation it sits above.
+            A 44px mark beside the product name carries the same identity at a fraction of the
+            visual weight, and the glow is gone because the emblem no longer needs to punch
+            through a white disc. */}
+        <HStack mb={6} px={2} py={3} gap={3}>
+          <Logo height={44} />
+          <Text fontSize="md" fontWeight="800" letterSpacing="tight" color="fg" lineHeight="1">
+            CarCarePlus
+          </Text>
+        </HStack>
 
         <Stack gap={4} flex="1">
           {GROUP_ORDER.map((group) => {
@@ -161,7 +185,7 @@ export default function DashboardLayout() {
           variant="ghost"
           justifyContent="flex-start"
           color="fgMuted"
-          _hover={{ bg: 'surface', color: 'red.400' }}
+          _hover={{ bg: 'navHoverBg', color: 'red.400' }}
           rounded="lg"
         >
           <MdLogout />
@@ -189,6 +213,38 @@ export default function DashboardLayout() {
             <Input placeholder={t('common.search')} bg="surface" borderColor="line" rounded="full" />
           </InputGroup>
           <Box flex="1" />
+          {showBell && (
+            <Box position="relative">
+              <IconButton
+                aria-label={t('notifications.title')}
+                variant="ghost"
+                rounded="full"
+                onClick={() => setNotifOpen(true)}
+              >
+                <MdOutlineNotifications />
+              </IconButton>
+              {unreadCount > 0 && (
+                <Box
+                  position="absolute"
+                  top="2px"
+                  insetInlineEnd="2px"
+                  minW="18px"
+                  h="18px"
+                  px={1}
+                  rounded="full"
+                  bg="red.500"
+                  color="white"
+                  fontSize="10px"
+                  fontWeight="700"
+                  lineHeight="18px"
+                  textAlign="center"
+                  pointerEvents="none"
+                >
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </Box>
+              )}
+            </Box>
+          )}
           <IconButton aria-label="theme" variant="ghost" onClick={toggle} rounded="full">
             {mode === 'dark' ? <MdOutlineLightMode /> : <MdOutlineDarkMode />}
           </IconButton>
@@ -204,6 +260,10 @@ export default function DashboardLayout() {
           <Outlet />
         </Box>
       </Box>
+
+      {showBell && (
+        <NotificationsDialog open={notifOpen} onClose={() => setNotifOpen(false)} />
+      )}
     </Flex>
   );
 }

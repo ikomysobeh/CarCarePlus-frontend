@@ -163,8 +163,7 @@
   },
   "subscriptions": {
     "title": "Subscriptions & points",
-    "hint": "Enter a customer ID to view their subscriptions and loyalty points.",
-    "load": "Load",
+    "hint": "Choose a customer to view their subscriptions and loyalty points.",
     "add": "Add subscription",
     "edit": "Edit subscription",
     "deleteTitle": "Delete subscription",
@@ -174,7 +173,8 @@
     "emptyHistory": "No points transactions yet",
     "startDate": "Start",
     "endDate": "End",
-    "enterCustomer": "Enter a customer ID above to begin."
+    "enterCustomer": "Choose a customer above to begin.",
+    "selectCustomer": "Choose a customer…"
   },
   "settings": {
     "problemTypes": "Problem types",
@@ -312,9 +312,18 @@
     "taxNumber": "Tax number",
     "accountActive": "Account active"
   },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications yet",
+    "markRead": "Mark read",
+    "markAllRead": "Mark all as read"
+  },
   "workshops": {
     "add": "Add workshop",
     "edit": "Edit workshop",
+    "owner": "Owner account",
+    "ownerRequiredError": "Choose the account that will manage this workshop.",
+    "noOwnerCandidates": "No available workshop accounts. Every workshop account already owns a workshop — a new one is created from the registration request.",
     "rating": "Rating",
     "deleteTitle": "Delete workshop",
     "empty": "No workshops yet"
@@ -364,7 +373,8 @@
     "empty": "No cars yet",
     "deleteTitle": "Delete car",
     "deleteMessage": "Are you sure you want to delete car \"{{plate}}\"?",
-    "customerId": "Customer ID (owner)",
+    "customer": "Customer (owner)",
+    "customerCompanyTag": "Company",
     "brand": "Brand",
     "carType": "Car type",
     "branch": "Branch",
@@ -478,6 +488,10 @@
     "tabMaterials": "Materials",
     "tabHistory": "History",
     "tabService": "Service detail",
+    "discount": "Discount",
+    "discountTitle": "Apply discount",
+    "discountValue": "Discount value (amount or %)",
+    "discountReason": "Reason (optional)",
     "customer": "Customer",
     "employee": "Employee",
     "notAssigned": "Not assigned",
@@ -554,7 +568,13 @@
     "transferTitle": "Transfer stock between branches",
     "transferHint": "Move materials directly from one branch to another — created and approved immediately.",
     "detailsTitle": "Request details",
-    "rejectionReason": "Rejection reason"
+    "rejectionReason": "Rejection reason",
+    "tabRequests": "Requests",
+    "tabPayments": "Payments",
+    "payFor": "Request",
+    "paymentsTitle": "Purchase payments",
+    "paymentsHint": "A payment is recorded when a purchase request is approved.",
+    "paymentsEmpty": "No purchase payments yet"
   },
   "spareParts": {
     "hint": "Spare part requests raised by field staff on active orders. Read-only here — customers approve or reject from their app.",

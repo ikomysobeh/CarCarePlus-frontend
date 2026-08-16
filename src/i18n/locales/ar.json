@@ -163,8 +163,7 @@
   },
   "subscriptions": {
     "title": "الاشتراكات والنقاط",
-    "hint": "أدخل رقم العميل لعرض اشتراكاته ونقاط الولاء.",
-    "load": "عرض",
+    "hint": "اختر عميلاً لعرض اشتراكاته ونقاط الولاء.",
     "add": "إضافة اشتراك",
     "edit": "تعديل الاشتراك",
     "deleteTitle": "حذف الاشتراك",
@@ -174,7 +173,8 @@
     "emptyHistory": "لا توجد حركات نقاط بعد",
     "startDate": "البداية",
     "endDate": "النهاية",
-    "enterCustomer": "أدخل رقم العميل أعلاه للبدء."
+    "enterCustomer": "اختر عميلاً من الأعلى للبدء.",
+    "selectCustomer": "اختر عميلاً…"
   },
   "settings": {
     "problemTypes": "أنواع الأعطال",
@@ -312,9 +312,18 @@
     "taxNumber": "الرقم الضريبي",
     "accountActive": "الحساب مفعّل"
   },
+  "notifications": {
+    "title": "الإشعارات",
+    "empty": "لا توجد إشعارات بعد",
+    "markRead": "تعليم كمقروء",
+    "markAllRead": "تعليم الكل كمقروء"
+  },
   "workshops": {
     "add": "إضافة ورشة",
     "edit": "تعديل الورشة",
+    "owner": "حساب المالك",
+    "ownerRequiredError": "اختر الحساب الذي سيدير هذه الورشة.",
+    "noOwnerCandidates": "لا توجد حسابات ورش متاحة. كل حساب ورشة يملك ورشة بالفعل — الورشة الجديدة تُنشأ من طلب التسجيل.",
     "rating": "التقييم",
     "deleteTitle": "حذف الورشة",
     "empty": "لا توجد ورش بعد"
@@ -364,7 +373,8 @@
     "empty": "لا توجد سيارات بعد",
     "deleteTitle": "حذف السيارة",
     "deleteMessage": "هل أنت متأكد من حذف السيارة \"{{plate}}\"؟",
-    "customerId": "رقم العميل (المالك)",
+    "customer": "العميل (المالك)",
+    "customerCompanyTag": "شركة",
     "brand": "الماركة",
     "carType": "نوع السيارة",
     "branch": "الفرع",
@@ -478,6 +488,10 @@
     "tabMaterials": "المواد",
     "tabHistory": "السجل",
     "tabService": "تفاصيل الخدمة",
+    "discount": "خصم",
+    "discountTitle": "تطبيق خصم",
+    "discountValue": "قيمة الخصم (مبلغ أو %)",
+    "discountReason": "السبب (اختياري)",
     "customer": "العميل",
     "employee": "الموظف",
     "notAssigned": "غير مُسند",
@@ -554,7 +568,13 @@
     "transferTitle": "تحويل مخزون بين الفروع",
     "transferHint": "نقل المواد مباشرة من فرع إلى آخر — يُنشأ ويُعتمد فوراً.",
     "detailsTitle": "تفاصيل الطلب",
-    "rejectionReason": "سبب الرفض"
+    "rejectionReason": "سبب الرفض",
+    "tabRequests": "الطلبات",
+    "tabPayments": "المدفوعات",
+    "payFor": "الطلب",
+    "paymentsTitle": "مدفوعات الشراء",
+    "paymentsHint": "يُسجَّل الدفع عند اعتماد طلب الشراء.",
+    "paymentsEmpty": "لا توجد مدفوعات شراء بعد"
   },
   "spareParts": {
     "hint": "طلبات قطع الغيار المرفوعة من الفنيين على الطلبات النشطة. للعرض فقط هنا — يوافق العملاء أو يرفضون من تطبيقهم.",

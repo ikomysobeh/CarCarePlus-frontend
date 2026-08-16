@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Box, Button, Heading, HStack, IconButton, Input, SimpleGrid, Stack } from '@chakra-ui/react';
-import { MdAdd, MdEdit, MdDelete, MdOutlineLoyalty, MdSearch } from 'react-icons/md';
+import { Box, Button, Heading, HStack, IconButton, NativeSelect, SimpleGrid, Stack } from '@chakra-ui/react';
+import { MdAdd, MdEdit, MdDelete, MdOutlineLoyalty } from 'react-icons/md';
 import { useTranslation } from 'react-i18next';
 import {
   PageHeader,
@@ -12,6 +12,7 @@ import {
   type Column,
 } from '../../components';
 import { useAuth } from '../../auth/AuthContext';
+import { useCustomerOptions } from '../customers/api';
 import {
   useUserPackages,
   useDeleteUserPackage,
@@ -31,8 +32,8 @@ export default function SubscriptionsPage() {
   const canWrite = role === 'super_admin' || role === 'admin';
   const canDelete = role === 'super_admin';
 
-  const [customerInput, setCustomerInput] = useState('');
   const [customerId, setCustomerId] = useState<number | undefined>(undefined);
+  const customers = useCustomerOptions();
 
   const subs = useUserPackages(customerId);
   const balance = usePointsBalance(customerId);
@@ -42,11 +43,6 @@ export default function SubscriptionsPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<UserPackage | null>(null);
   const [toDelete, setToDelete] = useState<UserPackage | null>(null);
-
-  const load = () => {
-    const id = Number(customerInput);
-    setCustomerId(Number.isFinite(id) && id > 0 ? id : undefined);
-  };
 
   const subColumns: Column<UserPackage>[] = [
     { key: 'package', header: t('packages.package'), render: (r) => r.package?.name ?? `#${r.package_id}` },
@@ -98,22 +94,29 @@ export default function SubscriptionsPage() {
     <Box>
       <PageHeader title={t('subscriptions.title')} subtitle={t('subscriptions.hint')} />
 
-      {/* Customer picker (no /customers lookup endpoint yet — enter the id, same as cars). */}
-      <HStack mb={6} gap={3} maxW="480px">
-        <Input
-          value={customerInput}
-          onChange={(e) => setCustomerInput(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') load(); }}
-          type="number"
-          placeholder={t('field.customerId')}
-          bg="surface"
-          borderColor="line"
-          rounded="full"
-        />
-        <Button colorPalette="brand" onClick={load} flexShrink={0}>
-          <MdSearch /> {t('subscriptions.load')}
-        </Button>
-      </HStack>
+      {/* Customer picker. Selecting IS the action, so there's no separate "Load" button —
+          one less click, and no way to type an id that doesn't exist. */}
+      <Box mb={6} maxW="480px">
+        <NativeSelect.Root disabled={customers.isLoading}>
+          <NativeSelect.Field
+            value={customerId ?? ''}
+            onChange={(e) => setCustomerId(e.target.value ? Number(e.target.value) : undefined)}
+            bg="surface"
+            borderColor="line"
+            rounded="full"
+            _hover={{ borderColor: 'fgMuted' }}
+            _focusVisible={{ borderColor: 'brand.500', boxShadow: '0 0 0 1px var(--ccp-colors-brand-500)' }}
+          >
+            <option value="">{t('subscriptions.selectCustomer')}</option>
+            {customers.options.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.isCompany ? `${o.label} (${t('cars.customerCompanyTag')})` : o.label}
+              </option>
+            ))}
+          </NativeSelect.Field>
+          <NativeSelect.Indicator />
+        </NativeSelect.Root>
+      </Box>
 
       {customerId == null ? (
         <EmptyState message={t('subscriptions.enterCustomer')} />

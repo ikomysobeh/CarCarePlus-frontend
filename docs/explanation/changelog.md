@@ -4,6 +4,29 @@ A running log so you can see exactly what changed in each step and why. Newest a
 
 ---
 
+## 🧩 M23 / M25 / M26 — API localization, Order discount, Purchase payments (2026-08-16)
+
+Wired the actionable parts of the 2026-08-16 backend pull (`car project/docs/13-...`).
+
+- **M23 — API localization.** `api/client.ts` now sends `Accept-Language: <i18n.language>` on every
+  request, so the backend's new `SetLocale` middleware returns messages + enum labels in the active
+  UI language. One line in the request interceptor.
+- **M25 — Order discount.** super_admin can apply a discount from the booking detail dialog:
+  `POST /bookings/{id}/discount` (`{ value >0 ≤100, reason? }`). Added `bookings.discount` endpoint,
+  `canDiscountOrders` helper, `useApplyDiscount` hook, `DiscountOrderDialog`, and a header button in
+  `OrderDetailsDialog` (hidden for cancelled/completed orders and non-super-admins).
+- **M26 — Purchase payments.** A payment row is created when a purchase request is approved.
+  Added a read-only **Payments tab** inside `PurchaseRequestsPage` (super_admin only) via
+  `PurchasePaymentsSection` + `usePurchasePayments` + `purchasePayments` endpoints.
+
+**Deferred:** M24 (`/enums` adoption — optional), M27 (towing destination / workshop car-history —
+minor / workshop-facing), M28 (**Notifications UI — blocked**: the backend built FCM + in-app
+notifications but exposes no device-token or notifications-list endpoints yet; see docs/13 §8).
+
+**Verified:** `tsc -b` clean.
+
+---
+
 ## 🧩 M16–M22 — Booking detail, Procurement, Spare parts, Payments, Ratings, Wallets, Field ops (2026-08-15)
 
 Wired the 2026-08-15 backend pull, documented in
@@ -554,6 +577,389 @@ up the change automatically (routes weren't cached).
 > ⚠️ Note for the backend owner: the same `updateProfile` route was in that unprotected group,
 > so profile updates were affected too — both are fixed now. Worth telling the client so it's
 > reflected in their source.
+
+---
+
+## خلفية الوضع الداكن = خلفية صفحة الدخول (2026-08-16)
+
+**الملف:** `src/theme/system.ts`
+
+كانت خلفية الداشبورد في الوضع الداكن تستخدم نفس ألوان صفحة الدخول لكن **باتجاه معكوس**:
+
+| | صفحة الدخول | الداشبورد (قبل) |
+|---|---|---|
+| إنجليزي (LTR) | `to top right` (الأزرق أسفل يسار ← الداكن أعلى يمين) | `135deg` = `to bottom right` (الأزرق **أعلى**) |
+| عربي (RTL) | `to top left` | `225deg` = `to bottom left` |
+
+النتيجة أن الشاشتين تبدوان مختلفتين رغم أن الألوان واحدة. الإصلاح: بدل تكرار التدرّج،
+جعلنا متغيّر الداشبورد **اسماً بديلاً (alias)** لمتغيّر الدخول:
+
+```css
+html.dark[dir="rtl"] { --app-bg-grad: var(--brand-bg-grad); }
+html.dark[dir="ltr"] { --app-bg-grad: var(--brand-bg-grad); }
+```
+
+> **الفكرة (بلغة Laravel):** بدل نسخ نفس القيمة في مكانين ثم نسيان تحديث أحدهما، جعلنا
+> أحدهما يقرأ من الآخر — تماماً مثل `config('app.url')` بدل كتابة الرابط يدوياً في كل ملف.
+> الآن أي تعديل على تدرّج الدخول ينعكس تلقائياً على الداشبورد، ولا يمكن أن يتباعدا مرة أخرى.
+
+الوضع الفاتح لم يتغيّر (أبيض نظيف `#FFFFFF → #F5F7FA`).
+
+**التحقق:** `npx tsc -b` = 0. بصرياً: بدّل للوضع الداكن → الأزرق الساطع يبدأ من أسفل جهة
+السايدبار ويتدرّج للداكن في الأعلى المقابل، بنفس مشهد صفحة الدخول. جرّبه بالعربي والإنجليزي.
+قد تحتاج **Ctrl+Shift+R**.
+
+---
+
+## ترويض التدرّج + توكنات السايدبار (2026-08-16)
+
+**الملفات:** `src/theme/system.ts` · `src/layouts/DashboardLayout.tsx`
+
+بعد جعل خلفية الداكن مطابقة للدخول ظهرت مشكلة: التدرّج يبدأ **أزرق ساطع `#0066FF` من الركن
+السفلي**، وهناك بالضبط يقع **أسفل السايدبار** — فصار نصف القائمة داكناً ونصفها أزرق ساطع،
+وذاب نص `fgMuted` واختفى زر Logout.
+
+### 1) ترويض التدرّج (الداكن)
+أبقينا نفس عائلة اللون ونفس الاتجاه، لكن أزلنا ذروة السطوع وأبعدناها عن السايدبار:
+
+```css
+/* قبل: #0066FF 0% ← الأزرق الساطع تحت السايدبار مباشرة */
+linear-gradient(to top right, #0B1A3A 0%, #14306b 40%, #0D1A32 72%, #080D1A 100%)
+```
+
+السايدبار عرضه 260px ≈ 14% من الشاشة، فهو يقع في أول ~0–14% من محور التدرّج → يجلس الآن على
+`#0B1A3A` (كحلي داكن، تباين ممتاز)، بينما ذروة الأزرق `#14306b` انتقلت إلى 40% أي **داخل
+منطقة المحتوى**.
+
+### 2) توكنان جديدان بدل الألوان اليدوية
+
+```ts
+navActiveBg: { base: 'rgba(0,102,255,0.10)', _dark: 'rgba(51,133,255,0.18)' }
+navHoverBg:  { base: 'rgba(0,0,0,0.05)',     _dark: 'rgba(255,255,255,0.07)' }
+```
+
+> **لماذا شفّافة وليست `surfaceAlt`؟** السايدبار `bg="transparent"` فوق تدرّج. لون **معتم**
+> عند hover يثقب مستطيلاً مسطّحاً في التدرّج (كان هذا سبب الوميض المزعج). أما لون **شفّاف**
+> فيُفتّح ما خلفه فقط، فيبدو صحيحاً في كل نقطة من التدرّج وفي الوضعين معاً.
+>
+> **بلغة Laravel:** مثل استخدام `@include` مع متغيّر بدل نسخ HTML ثابت — قيمة واحدة تتكيّف
+> مع سياقها بدل قيمة مكتوبة يدوياً تكسر في نصف الحالات.
+
+استبدلنا في `DashboardLayout.tsx`:
+- العنصر النشط: `rgba(37,99,235,0.12)` (مكتوب يدوياً، مخالف لقاعدة «توكنات فقط») → `navActiveBg`.
+- hover عنصر القائمة: `surfaceAlt` → `navHoverBg`.
+- hover زر Logout: `surface` → `navHoverBg`.
+
+**التحقق:** `npx tsc -b` = 0. بصرياً في الداكن: السايدبار كامله بلون داكن واحد من أعلاه
+لأسفله، Logout ظاهر، والأزرق يظهر كتوهّج في وسط منطقة المحتوى. جرّب hover على عنصر غير نشط
+في أعلى القائمة وفي أسفلها — يجب أن يبدو التفتيح متساوياً. **Ctrl+Shift+R**.
+
+---
+
+## إصلاح «إضافة ورشة» + منتقي المالك (2026-08-16)
+
+**الواجهة:** `api/endpoints.ts` · `features/workshops/{types,api,WorkshopFormDialog}.tsx` ·
+`components/form/FormTextField.tsx` · `i18n/locales/{ar,en}.json`
+**الباك:** `routes/api.php` · `WorkshopController` · `WorkshopService` · `WorkshopRepository` ·
+`CreateWorkshopRequest`
+
+### المشكلة
+زر «إضافة ورشة» يرجع 500 بنصّ SQL خام. السبب: `workshops.user_id` عمود `NOT NULL` بينما
+التحقّق يصفه `nullable` — فالطلب يمرّ ثم ترفضه MySQL.
+
+### ما هو `user_id` أصلاً؟
+الورشة **تسجّل دخولها** إلى النظام (مثل حساب `workshop@system.com`): تستقبل الحجوزات وتُسند
+الفنيين. فـ `user_id` هو **حساب مالك الورشة** — علاقة `Workshop belongsTo User`. ورشة بلا
+`user_id` = ورشة لا يستطيع أحد الدخول إليها.
+
+### لماذا لم يكن الحقل موجوداً؟
+لأن المسار المصمَّم لإنشاء ورشة هو `POST register/workshop` (تسجيل ذاتي → موافقة السوبر أدمن)،
+وهناك يملأ الخادمُ `user_id` تلقائياً. أما `POST /workshops` فمسار ثانوي يفترض أن الحساب موجود.
+
+### الحل — قائمة منسدلة، لا حقل رقمي
+حقل رقمي يطلب من الأدمن حفظ أرقام المستخدمين = تصميم سيّئ. لكن القائمة المنسدلة تحتاج مصدراً،
+ولم يكن في الباك أي `GET /users` (فقط `GET /users/{user}`). فأضفنا endpoint مخصّصاً:
+
+```
+GET /api/workshops/owner-candidates      (can:add.workshop — سوبر أدمن فقط)
+→ User::role('workshop')->whereDoesntHave('workshop')->orderBy('name')->get()
+```
+
+> **لماذا endpoint مخصّص وليس `GET /users?role=workshop`؟** لأن الصلاحية `show.users` يملكها
+> **العميل الشخصي** أيضاً (`RolePermissionSeeder` سطر 246) — فقائمة مستخدمين عامة محميّة بها
+> تسرّب كل الحسابات للعملاء. الـ endpoint المخصّص يُرجع **فقط** حسابات دور `workshop` غير
+> المرتبطة، ولسوبر أدمن فقط. صفر سطح تسريب.
+>
+> **بلغة Laravel:** الفرق بين `Route::apiResource('users')` عامّ، وبين `route` يجيب على سؤال
+> واحد محدّد. الثاني أضيق وأأمن ولا يحتاج صلاحية جديدة (= لا `migrate:fresh --seed`، = لا فقدان بيانات).
+
+**ترتيب المسارات مهم:** سُجِّل `owner-candidates` **قبل** `/workshops/{workshop}`، وإلا ابتلعه
+المسار العام وحاول Laravel إيجاد ورشة رقمها `"owner-candidates"`. وأضفنا `->whereNumber('workshop')`
+على مسار العرض تحصيناً دائماً.
+
+### التحقّق أيضاً
+`CreateWorkshopRequest`: `user_id` صار `required` + `unique:workshops,user_id` (مطابقةً لـ
+`User::workshop()` وهي `HasOne` — حساب واحد لا يملك ورشتين). النتيجة: **422 على الحقل** بدل 500 خام.
+
+### الواجهة
+- `useWorkshopOwnerCandidates(enabled)` — يجلب فقط عندما يكون الحوار **مفتوحاً وفي وضع إنشاء**.
+- `FormSelect` بعنوان «حساب المالك»، تسمية كل خيار `الاسم — البريد`.
+- تظهر في **الإنشاء فقط**؛ التعديل يحذف `user_id` من الحمولة لأن الـ API يرفض إعادة تعيين المالك.
+- تنبيه واضح حين تكون القائمة فارغة.
+- `FormTextField` اكتسب خاصية `helper` اختيارية (نصّ رمادي صغير تحت الحقل، يختفي عند وجود خطأ).
+
+### التحقّق الفعلي
+`npx tsc -b` = 0 · `php artisan route:list --path=workshops` يُظهر المسار الجديد ·
+`GET /workshops/owner-candidates` = 200 · إنشاء بلا `user_id` = **422** (كان 500).
+
+### ⚠️ قيد متبقٍّ
+`registerWorkshop` ينشئ المستخدم والورشة **معاً**، فلا ينشأ حساب ورشة بلا ورشة طبيعياً →
+القائمة **فارغة على قاعدة مزروعة حديثاً**، وتمتلئ فقط بعد **حذف** ورشة. الحل الكامل: أن ينشئ
+`POST /workshops` حساب المالك ضمنياً. موثّق في `docs/إصلاحات-الباك-المطلوبة.md §8`.
+
+---
+
+## شاشة السيارات: 404 ثم 500 — منتقي العميل (2026-08-16)
+
+**الواجهة:** `features/cars/CarFormDialog.tsx` · `i18n/locales/{ar,en}.json`
+**الباك:** `routes/api.php` · `CarController.php` · `RolePermissionSeeder.php`
+
+### 1) الشاشة فارغة — 404
+`GET /api/cars/all` كان 404 لأن مسارات `CarController` **الستّة** مسجَّلة **بلا بادئة `cars/`**
+وموزّعة على أربع مجموعات مختلفة. أضفنا البادئة في الباك؛ **الواجهة لم تتغيّر** لأنها كانت
+تطلب المسار الصحيح منذ البداية.
+
+اكتشفنا أثناء ذلك أن `POST /api/{customer_id?}` كان **مسار التقاط عام على جذر الـ API**:
+أي `POST /api/5` ينشئ سيارة. أي مسار POST جديد بمقطع رقمي واحد كان معرّضاً للابتلاع صامتاً.
+
+### 2) الإضافة تنفجر — 500 بمفتاح أجنبي
+```
+SQLSTATE[23000]: 1452 ... cars_user_id_foreign ... values (5555, ...)
+```
+النموذج كان يعرض حقلاً رقمياً «رقم العميل»، والباك يأخذه من **الرابط** ويكتبه مباشرةً.
+
+> **لماذا لم يلتقطه `CreateCarRequest`؟** لأن `FormRequest` يتحقّق من **جسم الطلب فقط**،
+> و`customer_id` مقطع في الرابط (`/cars/{customer_id?}`). و`whereNumber` يضمن أنه **رقم** لا
+> أنه **موجود**.
+>
+> **بلغة Laravel:** الفرق بين `$request->validated()` و `Route::bind`/`findOrFail`. المقاطع
+> في الرابط تحتاج إمّا Route Model Binding وإمّا تحقّقاً يدوياً — وهنا لم يوجد أيّهما.
+
+**الباك:** أضفنا فحص `User::find()` + التأكّد من أن الدور عميل، وأرجعنا `Response::Validation`
+(422) بدل `Response::Error` التي قيمتها الافتراضية **500**.
+
+### 3) الواجهة: قائمة منسدلة بدل الحقل الرقمي
+نفس مبدأ منتقي مالك الورشة. المصادر موجودة مسبقاً هنا:
+
+```ts
+const personalCustomers = usePersonalCustomers();   // GET /customers/personal
+const companyCustomers  = useCompanyCustomers();    // GET /customers/company
+```
+
+> ⚠️ **فخّ تحقّقنا منه قبل الكتابة:** السيارة تنتمي إلى **مستخدم** (`cars.user_id`)، فالقائمة
+> يجب أن تعطي **معرّفات مستخدمين**. فحصنا قاعدة البيانات: `GET /customers/company` يُرجع
+> `id: 5`، والمستخدم رقم 5 هو صاحب دور `customer_company` — بينما `companies.id` للسجلّ نفسه
+> هو **1**. لو افترضنا أنه معرّف الشركة لأُنشئت السيارة **لمالك خاطئ بلا أي خطأ ظاهر** — وهو
+> أسوأ من الانفجار، لأنه يمرّ صامتاً.
+
+الشركات تُعرَض بوسم `(شركة)` لتمييزها في قائمة واحدة مسطّحة. دور `admin` لا يملك
+`show.company_customers` فيحصل على 403 وتظهر له قائمة الأفراد فقط — تدهور مقبول.
+
+المفتاح `cars.customerId` («رقم العميل») استُبدل بـ `cars.customer` («العميل (المالك)»)
+و`cars.customerCompanyTag` في اللغتين.
+
+### التحقّق الفعلي
+`npx tsc -b` = 0 · `GET /cars/all` = 200 مع 9 سيارات (كان 404) ·
+`POST /cars/5555` = **422** (كان 500) · `POST /cars/1` (سوبر أدمن) = **422** ·
+`POST /cars/26` (عميل حقيقي) = **نجح**، ثم حذفنا سيارة الاختبار.
+
+---
+
+## منتقي العميل المشترك + صفحة الاشتراكات (2026-08-16)
+
+**الملفات:** `features/customers/api.ts` · `features/subscriptions/SubscriptionsPage.tsx` ·
+`features/cars/CarFormDialog.tsx` · `i18n/locales/{ar,en}.json`
+
+### المشكلة
+صفحة **الاشتراكات والنقاط** كانت تطلب **رقم عميل** يدوياً + زرّ «عرض». وكان التعليق في الكود
+يبرّر ذلك بأنه «لا يوجد endpoint للعملاء» — وهو **افتراض قديم لم يعد صحيحاً**:
+`GET /customers/personal` و`GET /customers/company` موجودان ونستخدمهما في شاشة العملاء.
+
+### الحل: استخرجنا الدالّة المشتركة أوّلاً
+كنّا سنكتب منطق دمج قائمتَي العملاء **مرّة ثانية** (بعد `CarFormDialog`). القاعدة في
+`.claude/skills/frontend-design`: «إن نسخت JSX مرّتين، استخرج مكوّناً». هنا المتكرّر ليس الشكل
+بل **منطق البيانات**، فاستخرجنا **hook** لا مكوّناً:
+
+```ts
+export function useCustomerOptions(): { isLoading: boolean; options: CustomerOption[] }
+```
+
+> **بلغة Laravel:** هذا ما تفعله حين تنقل استعلاماً متكرّراً من عدّة Controllers إلى **Service**
+> أو **Query Scope**. القاعدة الحرجة (أن `value` هو **معرّف المستخدم** لا معرّف الشركة) تُوثَّق
+> وتُطبَّق في **مكان واحد**، بدل أن تُنسى في الاستخدام الثالث.
+
+أعدنا كتابة `CarFormDialog` ليستهلكها بدل منطقه الخاص.
+
+### صفحة الاشتراكات
+استبدلنا `Input` الرقمي **وزرّ «عرض» معاً** بقائمة `NativeSelect`:
+
+```tsx
+onChange={(e) => setCustomerId(e.target.value ? Number(e.target.value) : undefined)}
+```
+
+> **لماذا حذفنا الزر؟** لأن **الاختيار نفسه هو الفعل**. الزر كان ضرورياً حين يُكتب الرقم يدوياً
+> (لتفادي طلب على كل ضغطة مفتاح)، أما مع القائمة فالاختيار حدث واحد مكتمل. نقرة أقلّ،
+> **ولا سبيل لإدخال رقم غير موجود أصلاً**.
+
+حذفنا `load` و`customerInput` والمفتاح `subscriptions.load`، وحدّثنا `hint` و`enterCustomer`
+من «أدخل رقم العميل» إلى «اختر عميلاً» في اللغتين، وأضفنا `subscriptions.selectCustomer`.
+
+### ملاحظتان تقنيّتان (Chakra v3)
+- `NativeSelect.Field` **لا يقبل** `disabled` — يوضع على `NativeSelect.Root`.
+- عند بناء مصفوفة خيارات بحقل اختياري (`isCompany`)، يستنتج TS النوع من **أوّل** عنصر
+  فيسقط الحقل. الحلّ: تعريف `CustomerOption` صراحةً وتحديد نوع خرج الـ hook.
+
+### المتبقّي من نفس النمط
+`AssignOrderDialog` ما زال يستخدم حقل `employee_id` رقمياً. **لا ينهار** —
+`AssignBookingRequest` يتحقّق من `exists:employees,id` فيعطي 422 نظيفاً — لكنه يحتاج
+endpoint جديداً `GET /employees` ليصبح قائمة منسدلة. لم يُنفَّذ بعد.
+
+**التحقّق:** `npx tsc -b` = 0.
+
+---
+
+## الشعار: من PNG أبيض إلى SVG متكيّف مع الثيم (2026-08-16)
+
+**الملفات:** `components/Logo.tsx` · `theme/system.ts` · `layouts/DashboardLayout.tsx` ·
+`auth/pages/LoginPage.tsx` · `index.html` · `public/brand/{emblem.svg,logo-source.svg}`
+
+### التشخيص — فحصنا الـ PNG بكسلاً بكسل
+| القياس | النتيجة |
+|---|---|
+| الشفافية | **معدومة** — كل البكسلات `alpha=255` |
+| الزوايا | `(255,255,255)` أبيض صافٍ |
+| «القرص» | `(248,249,253)` — لا يكاد يُميَّز عن محيطه |
+| نسبة الأبيض | **39% أبيض صافٍ** |
+| الأبعاد | `896×937` غير مربّعة، والشعار **غير متمركز** (183px فوقه مقابل 82px تحته) |
+
+الملف لم يكن «شعاراً على قرص أبيض» بل **مستطيلاً أبيض** في وسطه الشعار، و«القرص» كان مجرّد
+دائرة يقتطعها قناع CSS. هذا يفسّر الوهج (ألمع شيء على الشاشة)، والحجم الوهمي (104px منها
+~75px شعار فقط)، والإحساس بأنه «طافٍ» (لأنه فعلاً غير متمركز).
+
+### كيف حدّدنا ألوان المسارات — بالقياس لا بالتخمين
+المستخدم زوّدنا بـ SVG متجه، لكنه **تتبّع أحادي اللون** (`fill=\"#000000\"` لكل المسارات
+الستّة) — فقد التلوين الثنائي. فبدل التخمين:
+
+1. رندرنا **كل مسار على حدة** إلى PNG بقناع (`cairosvg`).
+2. لكل بكسل داخل القناع، قرأنا لون **الـ PNG الأصلي** في نفس الإحداثي.
+3. صنّفنا الألوان إلى BLUE / NAVY / white وأحصينا.
+
+```
+path 1:  20308px  BLUE=100%     → القوس
+path 2:  23755px  NAVY=99%      → الترس
+path 3/4/5: BLUE=100%           → البريقات
+path 6:  60560px  NAVY=79% BLUE=13%  → السيارة + المفتاح (مدموجان)
+```
+
+> **المفتاح:** ظهر أنه مدموج مع السيارة في outline واحد (`M` واحدة فقط في `d`). جرّبنا عزله
+> بقصّ مستطيل فوجدنا **48% تلوّثاً** ببدن السيارة — فالفصل مستحيل بلا تحرير متجهي يدوي.
+> قبلناه بلون السيارة؛ غير محسوس بحجم 44px.
+
+### الحل
+`Logo.tsx` صار **SVG مضمّناً** (~6KB بدل 279KB)، بمجموعتَي مسارات ولونين من متغيّرات CSS
+معرّفة في `system.ts`:
+
+| | فاتح | داكن |
+|---|---|---|
+| `--logo-base` (السيارة + الترس) | `#0F1D33` | **`#FFFFFF`** |
+| `--logo-accent` (القوس + البريقات) | `#0066FF` | `#3385FF` |
+
+في الداكن يصبح الشعار **أبيض مباشرةً على التدرّج — بلا أي قرص إطلاقاً**. هذا هو الغرض كلّه.
+
+> **لماذا متغيّرات CSS خام لا توكنات دلالية؟** لأنها تُستهلك في خاصية `fill` على عناصر
+> `<path>` نيّئة، وهي خارج مسار خصائص Chakra. نفس أسلوب `--app-bg-grad` المُثبت في الملف،
+> والقيم تبقى في `system.ts` لا في المكوّن.
+
+**الإطار:** `viewBox=\"166 151 601 601\"` — حسبناه من اتّحاد أُطر المسارات الستّة، مربّعاً
+ومتمركزاً بحشو 4%، فزال الانزياح تماماً.
+
+### فخّ صفحة الدخول ⚠️
+بطاقة الدخول **زجاجية بيضاء في الوضعين**. فلو تبع الشعارُ الوضعَ لصار **أبيض على أبيض =
+مختفٍ تماماً** عند تسجيل الدخول في الوضع الداكن. أضفنا `tone=\"onLight\"` يثبّت الحبر الداكن،
+مع زوج متغيّرات `--logo-*-on-light` **لا ينقلب أبداً**.
+
+### السايدبار
+`<Logo height={104} fade />` فوق توهّج مكتوب يدوياً `rgba(0,102,255,0.16)` (مخالف لقاعدة
+«توكنات فقط») ← استُبدل بـ **لوحة هوية**: شعار 44px + اسم «CarCarePlus» نصّاً. نفس الهوية
+بجزء يسير من الوزن البصري، والتوهّج حُذف لأن الشعار لم يعد يحتاج اختراق قرص أبيض.
+
+### الأيقونة (favicon)
+`emblem.jpeg` (JPEG بمربّع أبيض) ← أضفنا `emblem.svg` متجهاً، وبداخله
+`@media (prefers-color-scheme: dark)` فيتكيّف حبره مع ثيم **المتصفّح** (لا ثيم التطبيق —
+الأيقونة تُعرض على شريط التبويبات). أبقينا الـ JPEG كاحتياطي ولأيقونة Apple (يجب أن تكون نقطية).
+
+### ملفات
+- `public/brand/logo-source.svg` — المتجه الأصلي محفوظاً كمرجع.
+- `public/brand/logo.png` — **لم يعد مستخدماً** (279KB). آمن حذفه.
+
+**التحقّق:** `npx tsc -b` = 0 · رندرنا الشعار في الوضعين وفحصنا الصورتين بصرياً · `emblem.svg`
+XML صالح.
+
+---
+
+## M28 — واجهة الإشعارات (2026-08-16)
+
+**ملفات جديدة:** `features/notifications/{types.ts,api.ts,NotificationsDialog.tsx}`
+**معدّلة:** `api/endpoints.ts` · `utils/permissions.ts` · `layouts/DashboardLayout.tsx` · `i18n/*`
+
+### لماذا كانت محجوبة ولماذا فُتحت الآن
+M28 كانت موقوفة لأن الباك يولّد الإشعارات ولا يوفّر endpoints لقراءتها. التزام الباك
+`6b4b477` أضاف المسارات الخمسة، فسحبناها وبنينا الواجهة.
+
+### تشخيص «الإشعارات لا تصل» — ثلاث طبقات
+عند الإبلاغ عن أن الإشعارات لا تصل رغم عمل `queue:work`، تبيّن أن الطابور **سليم تماماً**:
+
+```
+notifications rows in DB: 4      ← تُولَّد وتُخزَّن فعلاً
+failed_jobs: 0 | pending: 0      ← لا أعطال
+GET /api/notifications → 404     ← الكود المشغَّل بلا المسارات (نسخة قديمة)
+```
+
+السبب كان تراكم ثلاث طبقات: (1) الباك المحلي متأخّر التزاماً واحداً، (2) لا واجهة أصلاً،
+(3) الصلاحيات موجودة كصفوف لكن **غير ممنوحة** لأي دور. الطبقة الثالثة كانت ستُظهر **403 لا 404**
+بعد السحب — ولولا فحصها لبدا الأمر عطلاً جديداً.
+
+### البنية
+- `useUnreadCount(enabled)` — يستطلع كل **60 ثانية**.
+- `useNotifications(enabled)` — يُجلب **فقط عند فتح اللوحة**.
+- `useMarkNotificationRead` / `useMarkAllNotificationsRead`.
+
+> **لماذا الاستطلاع (polling)؟** لا يوجد WebSocket ولا SSE في الباك، فهو السبيل الوحيد لملاحظة
+> إشعار جديد. اخترنا 60 ثانية عمداً: أقصر منها يُرهق الـ API من أجل رقم نادر التغيّر.
+>
+> **مفتاح دقيق:** `notificationKeys.all` **بادئة** لكلٍّ من `list` و`unread`، فإبطال واحد
+> يحدّث الصفّ **والعدّاد معاً**. لو فصلناهما لأمكن أن يقول الشارة «3» والقائمة كلها مقروءة.
+
+### الصلاحيات — مطابقة حرفية للباك
+`canSeeNotifications(role)` يعكس **بالضبط** الأدوار الخمسة التي منحها الـ Seeder. **العملاء
+مستثنون في الباك**، فلو أظهرنا لهم الجرس لعرضنا زرّاً كل نقرة عليه تُرجع 403.
+
+### الواجهة
+جرس في النافبار + شارة حمراء بالعدد (`99+` عند التجاوز)، تفتح `Dialog` (استخدمنا
+`Dialog` لا `Popover` لأنه النمط **المُثبت** في المشروع — `ConfirmDialog`/`FormDialog` —
+ولا مخاطرة في واجهة Chakra v3 غير مجرّبة). كل صفّ: نقطة ملوّنة حسب `type` (بارتداد إلى
+`gray` للقيم غير المعروفة، فالـ enum قد ينمو في الخادم)، وخلفية `navActiveBg` لغير المقروء.
+
+### التحقّق الفعلي
+`npx tsc -b` = 0. والدورة كاملة على خادم حيّ بإشعار اختبار أنشأناه ثم **حذفناه**:
+```
+badge before: 1  →  POST /{id}/read: 0  →  POST /read-all: 0
+```
+
+### 🔴 ثغرة في الباك أبلغنا عنها
+`NotificationController::show` حارس الملكية فيها **معطّل بتعليق** (`//$this->authorizeOwnership`)
+بينما `markAsRead`/`destroy` تستدعيانه. أي مستخدم يقرأ إشعار أي مستخدم آخر بتخمين الرقم —
+IDOR. موثّقة في `docs/تعديلات-الباك-للمطوّر.md §ب-6`. **لم نعدّل ملفات الباك** لأجلها.
 
 ---
 

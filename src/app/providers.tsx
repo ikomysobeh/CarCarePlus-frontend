@@ -14,7 +14,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
 
   // Color mode (dark is the default; the user's choice is remembered in localStorage).
   const [mode, setMode] = useState<ColorMode>(
-    () => (localStorage.getItem(MODE_KEY) as ColorMode | null) ?? 'dark',
+    () => (localStorage.getItem(MODE_KEY) as ColorMode | null) ?? 'light',
   );
   const colorMode = useMemo(
     () => ({

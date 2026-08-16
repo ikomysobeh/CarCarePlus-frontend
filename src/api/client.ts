@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios';
+import i18n from '../i18n';
 import type { ApiResponse } from './types';
 import { ApiError } from './types';
 
@@ -15,10 +16,12 @@ export const http = axios.create({
   headers: { Accept: 'application/json' },
 });
 
-// Attach bearer token on every request.
+// Attach bearer token + the active UI language on every request. The backend's SetLocale
+// middleware reads Accept-Language and localizes messages + enum labels (see docs/13 §1).
 http.interceptors.request.use((config) => {
   const token = tokenStore.get();
   if (token) config.headers.Authorization = `Bearer ${token}`;
+  config.headers['Accept-Language'] = i18n.language || 'ar';
   return config;
 });
 

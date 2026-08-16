@@ -8,6 +8,7 @@ import { FormDialog, FormTextField, FormSelect, FormSwitch, ImageUploadField } f
 import { ApiError } from '../../api/types';
 import { FUEL_TYPES } from '../../utils/enums';
 import { useBranches } from '../branches/api';
+import { useCustomerOptions } from '../customers/api';
 import { useCarBrands, useCarTypes } from '../catalog/api';
 import { useCreateCar, useUpdateCar } from './api';
 import type { Car, CarInput } from './types';
@@ -45,6 +46,8 @@ export default function CarFormDialog({
   const brands = useCarBrands();
   const types = useCarTypes();
   const branches = useBranches();
+  // A car belongs to a USER, so the owner picker must offer user ids — see useCustomerOptions.
+  const customers = useCustomerOptions();
   const create = useCreateCar();
   const update = useUpdateCar();
   const isEdit = !!car;
@@ -102,6 +105,12 @@ export default function CarFormDialog({
     }
   };
 
+  // Companies own fleets too, so they're offered as well — tagged so the two kinds stay
+  // tellable apart inside one flat <select>.
+  const customerOptions = customers.options.map((o) => ({
+    value: o.value,
+    label: o.isCompany ? `${o.label} (${t('cars.customerCompanyTag')})` : o.label,
+  }));
   const brandOptions = brands.data?.map((b) => ({ value: b.id, label: b.name })) ?? [];
   const typeOptions = types.data?.map((ct) => ({ value: ct.id, label: ct.name_ar })) ?? [];
   const branchOptions = branches.data?.map((b) => ({ value: b.id, label: b.name_ar })) ?? [];
@@ -122,7 +131,9 @@ export default function CarFormDialog({
             <Alert.Title>{serverError.message}</Alert.Title>
           </Alert.Root>
         )}
-        {!isEdit && <FormTextField name="customer_id" label={t('cars.customerId')} type="number" required />}
+        {!isEdit && (
+          <FormSelect name="customer_id" label={t('cars.customer')} options={customerOptions} required />
+        )}
         <FormSelect name="brand_id" label={t('cars.brand')} options={brandOptions} required />
         <FormSelect name="car_type_id" label={t('cars.carType')} options={typeOptions} required />
         <FormSelect name="branch_id" label={t('cars.branch')} options={branchOptions} required />

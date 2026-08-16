@@ -9,6 +9,7 @@ export default function FormTextField({
   multiline,
   rows,
   required,
+  helper,
 }: {
   name: string;
   label: string;
@@ -16,6 +17,8 @@ export default function FormTextField({
   multiline?: boolean;
   rows?: number;
   required?: boolean;
+  /** Small grey hint under the input. Hidden while a validation error is showing. */
+  helper?: string;
 }) {
   const { control } = useFormContext();
   const { field, fieldState } = useController({ name, control });
@@ -41,6 +44,11 @@ export default function FormTextField({
         <Textarea {...field} value={field.value ?? ''} rows={rows} {...fieldStyles} />
       ) : (
         <Input {...field} value={field.value ?? ''} type={type} {...fieldStyles} />
+      )}
+      {helper && !fieldState.error && (
+        <Field.HelperText color="fgMuted" fontSize="xs">
+          {helper}
+        </Field.HelperText>
       )}
       <Field.ErrorText>{fieldState.error?.message}</Field.ErrorText>
     </Field.Root>

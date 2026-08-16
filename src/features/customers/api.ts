@@ -64,3 +64,33 @@ export function useDeleteCompanyCustomer() {
     onSuccess: () => qc.invalidateQueries({ queryKey: companyCustomerKeys.all }),
   });
 }
+
+/**
+ * Ready-made <select> options for "pick a customer", used by every screen that needs an owner
+ * (cars, subscriptions, …) so the merge rule lives in ONE place.
+ *
+ * ⚠️ The `value` is the USER id, not the company id. Both endpoints return User-shaped rows —
+ * `GET /customers/company` gives `id: 5` where user #5 holds the `customer_company` role, while
+ * `companies.id` for that same record is 1. Getting this wrong attaches records to the wrong
+ * owner with no error at all, so never swap in a company id here.
+ *
+ * `admin` lacks `show.company_customers`, so that request 403s for them and the list quietly
+ * falls back to personal customers only.
+ */
+export interface CustomerOption {
+  value: number;
+  label: string;
+  isCompany?: boolean;
+}
+
+export function useCustomerOptions(): { isLoading: boolean; options: CustomerOption[] } {
+  const personal = usePersonalCustomers();
+  const company = useCompanyCustomers();
+  return {
+    isLoading: personal.isLoading || company.isLoading,
+    options: [
+      ...(personal.data ?? []).map((c) => ({ value: c.id, label: `${c.name} — ${c.email}` })),
+      ...(company.data ?? []).map((c) => ({ value: c.id, label: c.name, isCompany: true })),
+    ],
+  };
+}

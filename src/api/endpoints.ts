@@ -100,10 +100,21 @@ export const endpoints = {
     destroy: (id: number) => `/customers/company/${id}`,
   },
 
+  // --- M28: Notifications (backend commit 6b4b477). Read + mark-as-read only; the rows are
+  // written server-side by InAppChannel, there is no "create notification" endpoint. ---
+  notifications: {
+    index: '/notifications',
+    unreadCount: '/notifications/unread-count',
+    markRead: (id: number) => `/notifications/${id}/read`,
+    markAllRead: '/notifications/read-all',
+  },
+
   // --- M12: Workshops (see docs/10 §3) ---
   workshops: {
     ...crud('/workshops'),
     my: '/workshops/my',
+    // Unattached `workshop`-role accounts, for the owner dropdown on create. Super admin only.
+    ownerCandidates: '/workshops/owner-candidates',
   },
 
   // --- M13: Materials & Inventory (see docs/10 §5) ---
@@ -131,6 +142,7 @@ export const endpoints = {
     show: (id: number) => `/bookings/${id}`,
     update: (id: number) => `/bookings/${id}`,
     cancel: (id: number) => `/bookings/${id}`,
+    discount: (id: number) => `/bookings/${id}/discount`, // M25: super_admin applies a discount
     assign: (id: number) => `/bookings/${id}/assign`,
     start: (id: number) => `/bookings/${id}/start`,
     complete: (id: number) => `/bookings/${id}/complete`,
@@ -158,6 +170,11 @@ export const endpoints = {
   purchaseRequestItems: {
     index: '/purchase-request-items',
     show: (id: number) => `/purchase-request-items/${id}`,
+  },
+  // M26: purchase payments — created when a purchase request is approved (super_admin, read-only).
+  purchasePayments: {
+    index: '/purchase-payments',
+    show: (id: number) => `/purchase-payments/${id}`,
   },
 
   // --- M18: Spare Part Requests (see docs/12 §M18) ---

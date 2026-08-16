@@ -92,6 +92,12 @@ export interface CancelOrderInput {
   cancel_reason?: string;
 }
 
+// POST /bookings/{id}/discount (M25) — value is an amount/percentage (> 0, ≤ 100), reason optional.
+export interface DiscountOrderInput {
+  value: number;
+  reason?: string;
+}
+
 // --- M16: booking detail sub-resources (see docs/12 §M16) ---
 
 interface EmployeeRef {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Button, HStack, IconButton } from '@chakra-ui/react';
+import { Box, Button, HStack, IconButton, Tabs } from '@chakra-ui/react';
 import { MdAdd, MdSwapHoriz, MdVisibility, MdEdit, MdDelete, MdCheck, MdClose } from 'react-icons/md';
 import { useTranslation } from 'react-i18next';
 import { PageHeader, DataTable, StatusChip, ConfirmDialog, type Column } from '../../components';
@@ -15,6 +15,7 @@ import PurchaseRequestFormDialog from './PurchaseRequestFormDialog';
 import TransferStockDialog from './TransferStockDialog';
 import PurchaseRequestDetailsDialog from './PurchaseRequestDetailsDialog';
 import RejectPurchaseRequestDialog from './RejectPurchaseRequestDialog';
+import PurchasePaymentsSection from './PurchasePaymentsSection';
 import type { PurchaseRequest } from './types';
 
 // Purchase Requests (see docs/12 §M17). Admin raises + edits/deletes pending requests;
@@ -85,7 +86,13 @@ export default function PurchaseRequestsPage() {
   ];
 
   return (
-    <Box>
+    <Tabs.Root defaultValue="requests" variant="line" colorPalette="brand">
+      <Tabs.List mb={4} borderColor="line">
+        <Tabs.Trigger value="requests">{t('purchaseRequests.tabRequests')}</Tabs.Trigger>
+        {canApprove && <Tabs.Trigger value="payments">{t('purchaseRequests.tabPayments')}</Tabs.Trigger>}
+      </Tabs.List>
+      <Tabs.Content value="requests">
+        <Box>
       <PageHeader
         title={t('nav.purchaseRequests')}
         subtitle={t('purchaseRequests.hint')}
@@ -143,6 +150,13 @@ export default function PurchaseRequestsPage() {
         onConfirm={() => { if (deleting) del.mutate(deleting.id, { onSettled: () => setDeleting(null) }); }}
         onClose={() => setDeleting(null)}
       />
-    </Box>
+        </Box>
+      </Tabs.Content>
+      {canApprove && (
+        <Tabs.Content value="payments">
+          <PurchasePaymentsSection />
+        </Tabs.Content>
+      )}
+    </Tabs.Root>
   );
 }

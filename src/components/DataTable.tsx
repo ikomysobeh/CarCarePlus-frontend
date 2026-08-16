@@ -38,7 +38,10 @@ export default function DataTable<T>({
   searchKeys,
   searchPlaceholder,
 }: DataTableProps<T>) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  // "Previous" must point toward the start of the reading direction, "next" toward the end —
+  // so the chevrons flip between Arabic (RTL) and English (LTR).
+  const rtl = i18n.language === 'ar';
   const [page, setPage] = useState(0);
   const perPage = 10;
   const [search, setSearch] = useState('');
@@ -136,7 +139,7 @@ export default function DataTable<T>({
                 disabled={page === 0}
                 onClick={() => setPage((p) => Math.max(0, p - 1))}
               >
-                <MdChevronRight />
+                {rtl ? <MdChevronRight /> : <MdChevronLeft />}
               </IconButton>
               <Text fontSize="sm" fontWeight="600" minW="48px" textAlign="center">
                 {page + 1} / {pageCount}
@@ -148,7 +151,7 @@ export default function DataTable<T>({
                 disabled={page + 1 >= pageCount}
                 onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
               >
-                <MdChevronLeft />
+                {rtl ? <MdChevronLeft /> : <MdChevronRight />}
               </IconButton>
             </Flex>
           </Flex>

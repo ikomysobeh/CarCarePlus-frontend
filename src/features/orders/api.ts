@@ -6,6 +6,7 @@ import type {
   Order,
   AssignOrderInput,
   CancelOrderInput,
+  DiscountOrderInput,
   OrderStatusHistory,
   PriceItemsResult,
   SubServicesResult,
@@ -69,6 +70,19 @@ export function useCancelOrder() {
         http.delete<ApiResponse<Order>>(endpoints.bookings.cancel(id), { data: input }),
       ),
     onSuccess: () => qc.invalidateQueries({ queryKey: orderKeys.all }),
+  });
+}
+
+// M25: super_admin applies a discount to a booking (see docs/13 §3).
+export function useApplyDiscount() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, input }: { id: number; input: DiscountOrderInput }) =>
+      unwrap<Order>(http.post<ApiResponse<Order>>(endpoints.bookings.discount(id), input)),
+    onSuccess: (_d, v) => {
+      qc.invalidateQueries({ queryKey: orderKeys.all });
+      qc.invalidateQueries({ queryKey: orderDetailKeys.priceItems(v.id) });
+    },
   });
 }
 

@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { http, unwrap, ALL_ROWS_PARAMS } from '../../api/client';
 import { endpoints } from '../../api/endpoints';
 import type { ApiResponse } from '../../api/types';
-import type { PurchaseRequest, PurchaseRequestInput, TransferInput } from './types';
+import type { PurchasePayment, PurchaseRequest, PurchaseRequestInput, TransferInput } from './types';
 
 // Purchase Requests (see docs/12 §M17).
 export const prKeys = { all: ['purchase-requests'] as const };
@@ -66,6 +66,19 @@ export function useRejectPurchaseRequest() {
         http.post<ApiResponse<PurchaseRequest>>(endpoints.purchaseRequests.reject(id), { rejection_reason }),
       ),
     onSuccess: () => invalidate(qc),
+  });
+}
+
+// M26: purchase payments (read-only, super_admin). Paginated server-side.
+export function usePurchasePayments() {
+  return useQuery({
+    queryKey: ['purchase-payments'] as const,
+    queryFn: () =>
+      unwrap<PurchasePayment[]>(
+        http.get<ApiResponse<PurchasePayment[]>>(endpoints.purchasePayments.index, {
+          params: ALL_ROWS_PARAMS,
+        }),
+      ),
   });
 }
 
