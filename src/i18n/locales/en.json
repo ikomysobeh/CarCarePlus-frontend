@@ -33,9 +33,7 @@
   },
   "dashboard": {
     "welcome": "Welcome, {{name}}",
-    "subtitle": "Here's an overview of your catalog and fleet.",
-    "kpiTitle": "Live operational KPIs",
-    "kpiNote": "Today's orders, revenue and active emergencies will appear here once the backend ships those endpoints."
+    "subtitle": "Here's an overview of your catalog and fleet."
   },
   "comingSoonBody": "This screen is planned. It's waiting on the backend endpoints to be built.",
   "comingSoonNote": {

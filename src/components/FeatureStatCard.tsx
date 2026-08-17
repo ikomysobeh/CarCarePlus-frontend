@@ -56,10 +56,13 @@ export default function FeatureStatCard({
         direction="row"
         align="center"
         justify="space-between"
-        gap={4}
-        minH="120px"
+        // Icon + gap + padding are FIXED width, so they set the minimum the card can be before
+        // the label starts wrapping. Trimmed from 72+16+48=136px down to 56+12+40=108px, which
+        // is what lets six of these sit in a row without "Sub-services" breaking onto two lines.
+        gap={3}
+        minH="108px"
         rounded="card"
-        p={6}
+        p={5}
         overflow="hidden"
         color="white"
         boxShadow={`0 14px 34px -12px ${rgba(tint, 0.5)}`}
@@ -91,15 +94,15 @@ export default function FeatureStatCard({
         />
 
         {/* Value + label on the start side (left in LTR / right in RTL). */}
-        <Box position="relative">
+        <Box position="relative" minW={0}>
           {loading ? (
-            <Box height="44px" width="90px" rounded="md" bg="whiteAlpha.300" />
+            <Box height="36px" width="72px" rounded="md" bg="whiteAlpha.300" />
           ) : (
-            <Text fontSize="5xl" fontWeight="800" lineHeight="1">
+            <Text fontSize="4xl" fontWeight="800" lineHeight="1">
               {value}
             </Text>
           )}
-          <Text fontSize="sm" color="whiteAlpha.800" mt={2}>
+          <Text fontSize="sm" color="whiteAlpha.800" mt={1.5} lineHeight="1.3">
             {label}
           </Text>
         </Box>
@@ -108,12 +111,12 @@ export default function FeatureStatCard({
         <Flex
           className="ccp-stat-icon"
           position="relative"
-          w="72px"
-          h="72px"
+          w="56px"
+          h="56px"
           rounded="badge"
           align="center"
           justify="center"
-          fontSize="4xl"
+          fontSize="3xl"
           flexShrink={0}
           transition="transform 0.6s ease"
           style={{

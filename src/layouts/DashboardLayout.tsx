@@ -17,8 +17,6 @@ import {
   MdOutlineDarkMode,
   MdLogout,
   MdSearch,
-  MdExpandMore,
-  MdChevronRight,
   MdOutlineNotifications,
   MdMenu,
 } from 'react-icons/md';
@@ -42,7 +40,6 @@ export default function DashboardLayout() {
   const { mode, toggle } = useColorMode();
   const location = useLocation();
 
-  const [showSoon, setShowSoon] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
 
@@ -56,19 +53,19 @@ export default function DashboardLayout() {
   const unread = useUnreadCount(showBell);
   const unreadCount = unread.data?.unread_count ?? 0;
 
+  // Only modules that are actually BUILT reach the nav. Unbuilt ones used to render in a
+  // collapsed "Coming soon" section; that has been dropped, so they are simply filtered out.
   const allowed = user ? MODULES_BY_ROLE[user.role] : [];
-  const items = NAV_ITEMS.filter((i) => allowed.includes(i.key));
-  // Split real (built) modules from the "coming soon" placeholders — the latter are collapsed
-  // into one section so the everyday nav fits on screen without scrolling.
-  const realItems = items.filter((i) => BUILT_MODULES.includes(i.key));
-  const soonItems = items.filter((i) => !BUILT_MODULES.includes(i.key));
+  const realItems = NAV_ITEMS.filter(
+    (i) => allowed.includes(i.key) && BUILT_MODULES.includes(i.key),
+  );
   const toggleLang = () => i18n.changeLanguage(i18n.language === 'ar' ? 'en' : 'ar');
 
   const isActive = (route: string) =>
     route === '/' ? location.pathname === '/' : location.pathname.startsWith(route);
 
-  // One nav row (used for both real and "soon" items). Soon rows are dimmed.
-  const NavRow = ({ item, dim }: { item: (typeof NAV_ITEMS)[number]; dim?: boolean }) => {
+  // One nav row.
+  const NavRow = ({ item }: { item: (typeof NAV_ITEMS)[number] }) => {
     const active = isActive(item.route);
     return (
       <HStack
@@ -79,7 +76,6 @@ export default function DashboardLayout() {
         py={2}
         rounded="lg"
         cursor="pointer"
-        opacity={dim ? 0.65 : 1}
         bg={active ? 'navActiveBg' : 'transparent'}
         color={active ? 'brand.fg' : 'fgMuted'}
         fontWeight={active ? '700' : '500'}
@@ -134,37 +130,6 @@ export default function DashboardLayout() {
             );
           })}
 
-          {/* Coming-soon modules — collapsed by default so they don't overflow the sidebar. */}
-          {soonItems.length > 0 && (
-            <Box>
-              <HStack
-                as="button"
-                {...{ type: 'button' }}
-                onClick={() => setShowSoon((s) => !s)}
-                w="full"
-                px={3}
-                py={1.5}
-                gap={2}
-                color="fgMuted"
-                cursor="pointer"
-                _hover={{ color: 'fg' }}
-              >
-                <Text flex="1" textAlign="start" fontSize="xs" fontWeight="700" textTransform="uppercase">
-                  {t('nav.group.soon', { defaultValue: 'Coming soon' })} ({soonItems.length})
-                </Text>
-                <Box fontSize="lg" display="flex">
-                  {showSoon ? <MdExpandMore /> : <MdChevronRight />}
-                </Box>
-              </HStack>
-              {showSoon && (
-                <Stack gap={0.5} mt={1}>
-                  {soonItems.map((item) => (
-                    <NavRow key={item.key} item={item} dim />
-                  ))}
-                </Stack>
-              )}
-            </Box>
-          )}
         </Stack>
 
         <Button

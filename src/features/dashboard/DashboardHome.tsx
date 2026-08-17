@@ -1,4 +1,4 @@
-import { Box, Flex, Icon, SimpleGrid, Text } from '@chakra-ui/react';
+import { Box, SimpleGrid, Text } from '@chakra-ui/react';
 import {
   MdOutlineDirectionsCar,
   MdOutlineCategory,
@@ -6,7 +6,6 @@ import {
   MdOutlineLayers,
   MdOutlineDirectionsCarFilled,
   MdOutlineSell,
-  MdInfoOutline,
 } from 'react-icons/md';
 import { useTranslation } from 'react-i18next';
 import FeatureStatCard from '../../components/FeatureStatCard';
@@ -48,7 +47,14 @@ export default function DashboardHome() {
 
       {/* Headline metrics — gradient "hero" cards. Blue-only ramp (deep navy → bright #0066FF)
           to match the logo, which dropped the green. */}
-      <SimpleGrid columns={{ base: 1, sm: 2, md: 3, xl: 5 }} gap={4} maxW="1200px">
+      {/* Car brands used to sit on its own row beside a "coming soon" KPI notice. The notice
+          is gone, so the sixth card joins the grid instead of floating alone. */}
+      {/* Three across, never six. The card is a horizontal layout whose icon + gap + padding
+          reserve a fixed 108px before any text, so six-in-a-row only has room on screens wider
+          than ~1800px — at 1280 and 1440, the two commonest laptop widths, it left 41px and
+          67px for the label, which is what made "Sub-services" wrap. Column counts stay
+          divisors of 6 so the last row is never half-empty. */}
+      <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} gap={4} maxW="1200px">
         <FeatureStatCard label={t('nav.cars')} value={len(cars.data)} loading={cars.isLoading}
           icon={<MdOutlineDirectionsCar />} tint="#1E3A8A" />
         <FeatureStatCard label={t('catalog.categories')} value={len(categories.data)} loading={categories.isLoading}
@@ -59,39 +65,9 @@ export default function DashboardHome() {
           icon={<MdOutlineLayers />} tint="#2563EB" />
         <FeatureStatCard label={t('catalog.carTypes')} value={len(carTypes.data)} loading={carTypes.isLoading}
           icon={<MdOutlineDirectionsCarFilled />} tint="#0066FF" />
+        <FeatureStatCard label={t('catalog.carBrands')} value={len(carBrands.data)} loading={carBrands.isLoading}
+          icon={<MdOutlineSell />} tint="#1D4ED8" />
       </SimpleGrid>
-
-      {/* Car brands as a matching gradient card, next to the KPI info panel. */}
-      <Flex mt={4} gap={4} maxW="1200px" wrap="wrap" align="stretch">
-        <Box w={{ base: 'full', md: '224px' }} flexShrink={0}>
-          <FeatureStatCard label={t('catalog.carBrands')} value={len(carBrands.data)} loading={carBrands.isLoading}
-            icon={<MdOutlineSell />} tint="#1D4ED8" />
-        </Box>
-        <Flex
-          flex="1"
-          minW="280px"
-          borderWidth="1px"
-          borderColor="line"
-          rounded="card"
-          p={5}
-          gap={3}
-          align="center"
-          style={{
-            background:
-              'linear-gradient(145deg, rgba(0,102,255,0.14), rgba(37,99,235,0.08)), var(--ccp-colors-surface)',
-          }}
-        >
-          <Icon as={MdInfoOutline} boxSize={5} color="accent.500" mt={0.5} />
-          <Box>
-            <Text fontSize="sm" fontWeight="700" color="fg">
-              {t('dashboard.kpiTitle')}
-            </Text>
-            <Text fontSize="xs" color="fgMuted" mt={0.5} lineHeight="1.6">
-              {t('dashboard.kpiNote')}
-            </Text>
-          </Box>
-        </Flex>
-      </Flex>
     </Box>
   );
 }
