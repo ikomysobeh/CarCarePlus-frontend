@@ -28,6 +28,7 @@
     "settings": "الإعدادات",
     "profile": "الملف الشخصي",
     "logout": "تسجيل الخروج",
+    "menu": "القائمة",
     "group": { "main": "الإدارة", "system": "النظام" }
   },
   "dashboard": {

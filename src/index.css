@@ -16,3 +16,60 @@ body,
 body {
   font-family: 'Cairo', 'Tajawal', Roboto, system-ui, sans-serif;
 }
+
+/* ==========================================================================
+   Theme switch — circular reveal (View Transitions API)
+   --------------------------------------------------------------------------
+   Lives here rather than in theme/system.ts because `::view-transition-*` and
+   `@keyframes` are browser-level at-rules; plain CSS avoids relying on Emotion
+   passing them through untouched.
+
+   How it works: the browser snapshots the page, we flip the theme, then it
+   cross-fades the old snapshot into the new one. We replace that default fade
+   with a circle that grows from wherever the toggle was clicked, so the new
+   theme looks like it is being poured over the old one.
+
+   `--vt-x/y/r` are written onto <html> by AppProviders at click time.
+   ========================================================================== */
+
+/* The default cross-fade must be switched off, or it runs UNDER our circle and
+   the two blend into a muddy double animation. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* The OLD theme stays put as a full-screen backdrop; the NEW one sits on top
+   and is clipped to the growing circle. Reversing these two makes the effect
+   look like the old theme is being wiped away instead — same animation, but it
+   reveals the page the user is leaving, which reads backwards. */
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 2;
+}
+
+/* NOTE: the growing circle itself is NOT defined here. It used to be a @keyframes
+   reading `var(--vt-x/y/r)` off <html> — but those custom properties do not
+   reliably inherit into the view-transition pseudo-element tree, which the
+   browser generates separately. The fallbacks (`50%`) won instead, so the reveal
+   always started from the centre of the screen no matter where you clicked.
+   AppProviders now drives it with Web Animations API and `pseudoElement:
+   '::view-transition-new(root)'`, passing real pixel values — no inheritance
+   involved, so there is nothing left to go wrong. */
+
+/* theme/system.ts puts a 0.4s colour transition on EVERY element. During the
+   wipe that fires too, so each element cross-fades its own colour while the
+   circle travels over it — the crisp edge smears into a grey mush. This class
+   is added for the duration of the transition only. */
+html.vt-switching *,
+html.vt-switching *::before,
+html.vt-switching *::after {
+  transition: none !important;
+}
+
+/* "Reduce motion" is handled in AppProviders — it skips startViewTransition
+   entirely and applies the theme instantly, so there is no animation here to
+   switch off. */

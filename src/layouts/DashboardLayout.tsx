@@ -1,15 +1,17 @@
 import {
   Box,
   Button,
+  Drawer,
   Flex,
   HStack,
   IconButton,
   Input,
   InputGroup,
+  Portal,
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   MdOutlineLightMode,
   MdOutlineDarkMode,
@@ -18,6 +20,7 @@ import {
   MdExpandMore,
   MdChevronRight,
   MdOutlineNotifications,
+  MdMenu,
 } from 'react-icons/md';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -41,6 +44,11 @@ export default function DashboardLayout() {
 
   const [showSoon, setShowSoon] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
+
+  // Close the mobile drawer whenever the route changes. Without this it stays open on top of
+  // the page the user just navigated to, so every nav tap needs a second tap to dismiss it.
+  useEffect(() => setNavOpen(false), [location.pathname]);
 
   // The bell is hidden for roles the backend never granted `show.notifications` to (customers),
   // so we never render a control whose every request would 403.
@@ -86,33 +94,12 @@ export default function DashboardLayout() {
     );
   };
 
-  return (
-    <Flex
-      minH="100vh"
-      bg="appBg"
-      backgroundImage="var(--app-bg-grad)"
-      backgroundAttachment="fixed"
-      color="fg"
-    >
-      {/* Sidebar */}
-      <Box
-        as="aside"
-        w={SIDEBAR_W}
-        flexShrink={0}
-        bg="transparent"
-        borderInlineEndWidth="1px"
-        borderColor="line"
-        position="sticky"
-        top={0}
-        h="100vh"
-        overflowY="auto"
-        px={3}
-        py={4}
-        display="flex"
-        flexDirection="column"
-        css={{ scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}
-      >
-        {/* Brand lockup: mark + wordmark. The old version was a 104px logo on a hand-written
+  // The nav is rendered TWICE — as the permanent desktop column and inside the mobile drawer —
+  // so it lives in one variable. Duplicating this JSX would mean every future nav change has
+  // to be made in two places, and the two would drift.
+  const sidebarContent = (
+    <>
+      {/* Brand lockup: mark + wordmark. The old version was a 104px logo on a hand-written
             radial glow — a huge bright blob that outweighed the navigation it sits above.
             A 44px mark beside the product name carries the same identity at a fraction of the
             visual weight, and the glow is gone because the emblem no longer needs to punch
@@ -191,7 +178,64 @@ export default function DashboardLayout() {
           <MdLogout />
           {t('nav.logout')}
         </Button>
+    </>
+  );
+
+  return (
+    <Flex
+      minH="100vh"
+      bg="appBg"
+      backgroundImage="var(--app-bg-grad)"
+      backgroundAttachment="fixed"
+      color="fg"
+    >
+      {/* Desktop sidebar. Below `lg` it is removed entirely rather than narrowed: at 260px it
+          was eating two thirds of a phone screen, leaving ~115px for the actual page. */}
+      <Box
+        as="aside"
+        w={SIDEBAR_W}
+        flexShrink={0}
+        bg="transparent"
+        borderInlineEndWidth="1px"
+        borderColor="line"
+        position="sticky"
+        top={0}
+        h="100vh"
+        overflowY="auto"
+        px={3}
+        py={4}
+        display={{ base: 'none', lg: 'flex' }}
+        flexDirection="column"
+        css={{ scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}
+      >
+        {sidebarContent}
       </Box>
+
+      {/* Mobile / tablet nav — same content, off-canvas. `placement="start"` is direction-aware,
+          so it slides in from the left in English and from the right in Arabic. */}
+      <Drawer.Root
+        open={navOpen}
+        onOpenChange={(e) => setNavOpen(e.open)}
+        placement="start"
+        size="xs"
+      >
+        <Portal>
+          <Drawer.Backdrop />
+          <Drawer.Positioner>
+            <Drawer.Content
+              bg="surface"
+              color="fg"
+              px={3}
+              py={4}
+              display="flex"
+              flexDirection="column"
+              overflowY="auto"
+            >
+              {sidebarContent}
+            </Drawer.Content>
+          </Drawer.Positioner>
+        </Portal>
+      </Drawer.Root>
 
       {/* Main */}
       <Box flex="1" minW={0} display="flex" flexDirection="column">
@@ -199,9 +243,9 @@ export default function DashboardLayout() {
         <Flex
           as="header"
           align="center"
-          gap={3}
-          px={6}
-          py={4}
+          gap={{ base: 1, md: 3 }}
+          px={{ base: 3, md: 6 }}
+          py={{ base: 3, md: 4 }}
           borderBottomWidth="1px"
           borderColor="line"
           position="sticky"
@@ -209,7 +253,25 @@ export default function DashboardLayout() {
           bg="transparent"
           zIndex={1}
         >
-          <InputGroup flex="1" maxW="420px" startElement={<MdSearch />}>
+          {/* Mirrors the sidebar's breakpoint exactly — the hamburger appears at precisely the
+              width where the permanent column disappears, so navigation is never unreachable. */}
+          <IconButton
+            aria-label={t('nav.menu', { defaultValue: 'Menu' })}
+            variant="ghost"
+            rounded="full"
+            display={{ base: 'flex', lg: 'none' }}
+            onClick={() => setNavOpen(true)}
+          >
+            <MdMenu />
+          </IconButton>
+          {/* Hidden on phones: with the hamburger, bell, theme and language controls all on one
+              row there is no honest room left for it. */}
+          <InputGroup
+            flex="1"
+            maxW="420px"
+            startElement={<MdSearch />}
+            display={{ base: 'none', md: 'flex' }}
+          >
             <Input placeholder={t('common.search')} bg="surface" borderColor="line" rounded="full" />
           </InputGroup>
           <Box flex="1" />
@@ -256,7 +318,7 @@ export default function DashboardLayout() {
           </Text>
         </Flex>
 
-        <Box p={6} flex="1">
+        <Box p={{ base: 4, md: 6 }} flex="1" minW={0}>
           <Outlet />
         </Box>
       </Box>

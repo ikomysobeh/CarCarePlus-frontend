@@ -28,6 +28,7 @@
     "settings": "Settings",
     "profile": "Profile",
     "logout": "Logout",
+    "menu": "Menu",
     "group": { "main": "Manage", "system": "System" }
   },
   "dashboard": {

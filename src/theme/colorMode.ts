@@ -9,7 +9,12 @@ export const MODE_KEY = 'ccp_mode';
 // mode and flip it. The real state lives in <AppProviders> (see app/providers.tsx).
 export interface ColorModeState {
   mode: ColorMode;
-  toggle: () => void;
+  /**
+   * Flip the theme. Optionally takes the click event — its coordinates become the centre of
+   * the circular reveal (see AppProviders). `onClick={toggle}` therefore Just Works and needs
+   * no wrapper; calling `toggle()` bare simply centres the animation on the viewport.
+   */
+  toggle: (e?: { clientX?: number; clientY?: number }) => void;
 }
 
 export const ColorModeContext = createContext<ColorModeState | null>(null);
