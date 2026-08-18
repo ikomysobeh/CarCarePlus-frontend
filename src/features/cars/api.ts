@@ -56,7 +56,10 @@ export function useUpdateCar() {
 export function useDeleteCar() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: number) => http.get(endpoints.cars.destroy(id)),
+    // Backend commit d880a3a changed this route from GET to DELETE (it acted on a GET, which
+    // meant any prefetch or crawler could delete a car). There is no GET variant left, so
+    // calling it with http.get now 405s.
+    mutationFn: (id: number) => http.delete(endpoints.cars.destroy(id)),
     onSuccess: () => qc.invalidateQueries({ queryKey: carKeys.all }),
   });
 }

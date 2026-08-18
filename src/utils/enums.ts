@@ -37,7 +37,9 @@ export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 export const PAYMENT_STATUSES = ['pending', 'paid', 'failed', 'refunded'] as const;
 export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 
-export const PAYMENT_TYPES = ['order', 'package', 'wallet_topup'] as const;
+// `spare` added by backend commit d880a3a (migration add_spare_part_to_payments): approving a
+// spare-part request now auto-creates a PENDING payment, collected on delivery.
+export const PAYMENT_TYPES = ['order', 'package', 'wallet_topup', 'spare'] as const;
 export type PaymentType = (typeof PAYMENT_TYPES)[number];
 
 // --- M8: Packages & Points (see docs/08) ---

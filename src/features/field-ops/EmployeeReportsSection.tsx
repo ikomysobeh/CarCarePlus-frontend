@@ -1,12 +1,20 @@
+import { useMemo, useState } from 'react';
 import { Box, Text } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
 import { PageHeader, DataTable, StatusChip, type Column } from '../../components';
-import { useEmployeeReports } from './api';
-import type { EmployeeReport } from './types';
+import { useEmployeeReports, filterReports } from './api';
+import EmployeeReportFilterBar from './EmployeeReportFilterBar';
+import type { EmployeeReport, EmployeeReportFilters } from './types';
 
 export default function EmployeeReportsSection() {
   const { t } = useTranslation();
+  const [filters, setFilters] = useState<EmployeeReportFilters>({});
   const { data, isLoading, error, refetch } = useEmployeeReports();
+
+  // Filtering happens in the browser (see `filterReports` for why), so it is instant — no
+  // debounce needed and no request per keystroke.
+  const rows = useMemo(() => filterReports(data ?? [], filters), [data, filters]);
+  const hasFilters = Object.values(filters).some((v) => v !== '' && v != null);
 
   const columns: Column<EmployeeReport>[] = [
     { key: 'id', header: t('fieldOps.id') },
@@ -37,14 +45,17 @@ export default function EmployeeReportsSection() {
   return (
     <Box>
       <PageHeader title={t('fieldOps.tabReports')} />
+      <EmployeeReportFilterBar value={filters} onChange={setFilters} />
       <DataTable
         columns={columns}
-        rows={data ?? []}
+        rows={rows}
         getRowId={(r) => r.id}
         loading={isLoading}
         error={error}
         onRetry={refetch}
-        emptyMessage={t('fieldOps.emptyReports')}
+        // A different message when filters are on: "no reports yet" would wrongly suggest the
+        // system is empty, when the rows are simply filtered out.
+        emptyMessage={hasFilters ? t('fieldOps.emptyFiltered') : t('fieldOps.emptyReports')}
       />
     </Box>
   );

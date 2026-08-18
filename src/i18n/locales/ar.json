@@ -1,5 +1,7 @@
 {
-  "app": { "name": "كار كير بلس" },
+  "app": {
+    "name": "كار كير بلس"
+  },
   "nav": {
     "dashboard": "لوحة التحكم",
     "orders": "الطلبات",
@@ -29,7 +31,10 @@
     "profile": "الملف الشخصي",
     "logout": "تسجيل الخروج",
     "menu": "القائمة",
-    "group": { "main": "الإدارة", "system": "النظام" }
+    "group": {
+      "main": "الإدارة",
+      "system": "النظام"
+    }
   },
   "dashboard": {
     "welcome": "مرحباً، {{name}}",
@@ -253,10 +258,13 @@
     "staffHint": "إنشاء حساب موظف (غسيل، ميكانيكي، أو مدير فرع).",
     "staffName": "الاسم الكامل",
     "staffTypeLabel": "نوع الموظف",
-    "staffType": { "washer": "فني غسيل", "mechanic": "ميكانيكي", "admin": "مدير فرع" },
+    "staffType": {
+      "washer": "فني غسيل",
+      "mechanic": "ميكانيكي",
+      "admin": "مدير فرع"
+    },
     "createStaff": "إنشاء الموظف",
     "staffCreated": "تم إنشاء حساب الموظف بنجاح.",
-
     "adminsHint": "إدارة حسابات مدراء الفروع.",
     "addAdmin": "إضافة مدير",
     "editAdmin": "تعديل المدير",
@@ -356,7 +364,12 @@
     "emptyStock": "لا توجد سجلات مخزون بعد",
     "addTransaction": "حركة جديدة",
     "txTypeLabel": "النوع",
-    "txType": { "in": "إدخال", "out": "إخراج", "transfer_out": "تحويل صادر", "transfer_in": "تحويل وارد" },
+    "txType": {
+      "in": "إدخال",
+      "out": "إخراج",
+      "transfer_out": "تحويل صادر",
+      "transfer_in": "تحويل وارد"
+    },
     "destinationBranch": "الفرع الوجهة",
     "referenceId": "رقم المرجع",
     "note": "ملاحظة",
@@ -437,7 +450,8 @@
     "paymentType": {
       "order": "طلب",
       "package": "باقة",
-      "wallet_topup": "شحن محفظة"
+      "wallet_topup": "شحن محفظة",
+      "spare": "قطعة غيار"
     },
     "walletTxType": {
       "credit": "إيداع",
@@ -487,7 +501,7 @@
     "tabMaterials": "المواد",
     "tabHistory": "السجل",
     "tabService": "تفاصيل الخدمة",
-    "discount": "خصم",
+    "discount": "الخصم",
     "discountTitle": "تطبيق خصم",
     "discountValue": "قيمة الخصم (مبلغ أو %)",
     "discountReason": "السبب (اختياري)",
@@ -500,7 +514,6 @@
     "scheduled": "مجدول",
     "vip": "VIP",
     "total": "الإجمالي",
-    "discount": "الخصم",
     "notes": "ملاحظات",
     "createdAt": "أُنشئ في",
     "label": "البند",
@@ -640,6 +653,14 @@
     "tabReports": "تقارير الموظفين",
     "tabGps": "سجلات الموقع",
     "emptyReports": "لا توجد تقارير موظفين بعد",
+    "emptyFiltered": "لا توجد تقارير مطابقة لهذه الفلاتر",
+    "filterSearch": "بحث",
+    "filterSearchHint": "في وصف المشكلة",
+    "filterOrder": "رقم الطلب",
+    "filterAllStatuses": "كل الحالات",
+    "filterFrom": "من تاريخ",
+    "filterTo": "إلى تاريخ",
+    "filterClear": "مسح الفلاتر",
     "emptyGps": "لا توجد سجلات موقع بعد",
     "id": "المعرف",
     "order": "الطلب",

@@ -1,5 +1,7 @@
 {
-  "app": { "name": "CarCarePlus" },
+  "app": {
+    "name": "CarCarePlus"
+  },
   "nav": {
     "dashboard": "Dashboard",
     "orders": "Orders",
@@ -29,7 +31,10 @@
     "profile": "Profile",
     "logout": "Logout",
     "menu": "Menu",
-    "group": { "main": "Manage", "system": "System" }
+    "group": {
+      "main": "Manage",
+      "system": "System"
+    }
   },
   "dashboard": {
     "welcome": "Welcome, {{name}}",
@@ -253,10 +258,13 @@
     "staffHint": "Create a staff account (washer, mechanic, or branch admin).",
     "staffName": "Full name",
     "staffTypeLabel": "Staff type",
-    "staffType": { "washer": "Washer", "mechanic": "Mechanic", "admin": "Branch admin" },
+    "staffType": {
+      "washer": "Washer",
+      "mechanic": "Mechanic",
+      "admin": "Branch admin"
+    },
     "createStaff": "Create staff",
     "staffCreated": "Staff account created successfully.",
-
     "adminsHint": "Manage branch-admin accounts.",
     "addAdmin": "Add admin",
     "editAdmin": "Edit admin",
@@ -356,7 +364,12 @@
     "emptyStock": "No stock records yet",
     "addTransaction": "New transaction",
     "txTypeLabel": "Type",
-    "txType": { "in": "Stock in", "out": "Stock out", "transfer_out": "Transfer out", "transfer_in": "Transfer in" },
+    "txType": {
+      "in": "Stock in",
+      "out": "Stock out",
+      "transfer_out": "Transfer out",
+      "transfer_in": "Transfer in"
+    },
     "destinationBranch": "Destination branch",
     "referenceId": "Reference ID",
     "note": "Note",
@@ -437,7 +450,8 @@
     "paymentType": {
       "order": "Order",
       "package": "Package",
-      "wallet_topup": "Wallet top-up"
+      "wallet_topup": "Wallet top-up",
+      "spare": "Spare part"
     },
     "walletTxType": {
       "credit": "Credit",
@@ -500,7 +514,6 @@
     "scheduled": "Scheduled",
     "vip": "VIP",
     "total": "Total",
-    "discount": "Discount",
     "notes": "Notes",
     "createdAt": "Created",
     "label": "Item",
@@ -640,6 +653,14 @@
     "tabReports": "Employee reports",
     "tabGps": "GPS logs",
     "emptyReports": "No employee reports yet",
+    "emptyFiltered": "No reports match these filters",
+    "filterSearch": "Search",
+    "filterSearchHint": "In problem description",
+    "filterOrder": "Order #",
+    "filterAllStatuses": "All statuses",
+    "filterFrom": "From date",
+    "filterTo": "To date",
+    "filterClear": "Clear filters",
     "emptyGps": "No GPS logs yet",
     "id": "ID",
     "order": "Order",
